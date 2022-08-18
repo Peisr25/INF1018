@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-float foo (float pf) {
-  return pf+1;
-}
+float foo (float pf);
 
 int main (int argc, char **argv) {
   float f;
