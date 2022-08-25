@@ -35,7 +35,7 @@ int xbyte (packed_t word, int bytenum) {
   case 2:
     var = word & 0x00ff0000;
     var = var>>16;
-    break
+    break;
   default:
     var = word & 0xff000000;
     var = var>>24;
