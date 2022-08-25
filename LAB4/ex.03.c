@@ -22,17 +22,26 @@ int string2num (char *s, int base) {
 }
 
 int xbyte (packed_t word, int bytenum) {
+  int var;
   switch (bytenum)
   {
   case 0:
-    
-    //word>>bytenum;
+    var = word& 0x000000ff;
     break;
-  
+  case 1:
+    var = word & 0x0000ff00;
+    var = var>>8;
+    break;
+  case 2:
+    var = word & 0x00ff0000;
+    var = var>>16;
+    break
   default:
+    var = word & 0xff000000;
+    var = var>>24;
     break;
   }
-  return 1;
+  return var;
 }
 
 int main (int argc, char **argv) {
