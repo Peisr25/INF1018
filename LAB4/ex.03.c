@@ -45,7 +45,7 @@ int xbyte (packed_t word, int bytenum) {
 }
 
 int main (int argc, char **argv) {
-  int x;
+  signed char x;
   if (argc != 3) {
     printf ("uso: %s <word (em hexadecimal)> <bytenum>\n", argv[0]);
     exit(1);
