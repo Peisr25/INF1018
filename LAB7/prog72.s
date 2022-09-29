@@ -36,7 +36,7 @@ L1:
   je  L3          /* goto L3 */
   #if(*pc != 123 || *pc != 125);
   cmpb $123,(%r12)
-  je L2
+  je L2         #jmp to L2
   cmpb $125,(%r12)
   je L2
   movsbl  (%r12), %eax    /* eax = *r12 (estendendo o byte para 32 bits (long)*/
