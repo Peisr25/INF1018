@@ -23,6 +23,7 @@
    */
    #int i=0;
    movl $0, %ebx
+   
    #int *p = nums;
    
 
