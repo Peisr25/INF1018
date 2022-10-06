@@ -18,15 +18,34 @@
    Variavel Registrador
    i           EBX
    p           R12
-   sum         EAX
+               rbx
 
    */
    #int i=0;
    movl $0, %ebx
    
    #int *p = nums;
-   
+   movq $nums, %r12
 
+FOR:
+   cmpl $5, %ebx
+   je FimLoop
+
+   movl (%r12), %edi
+   movl $1, %esi
+   call filtro
+
+   movq $s1, %rdi        #string s1 como primeiro argumento
+
+   movl %eax, %esi       #move retorno da func filtro para segundo argumento
+   movl $0, %eax
+   call printf
+
+   addq $4, %r12
+   addl $1,%ebx
+   jmp FOR
+
+FimLoop:
   /* finalizacao */
      movq -8(%rbp), %rbx
      movq -16(%rbp), %r12

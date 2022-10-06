@@ -20,8 +20,8 @@ int main (void) {
   s1.ps = &s;
   s1.cl1 = (long) s.ci;
   s1.cs1 = (s.cs >> 8) & 3;
-  dump (&s1, sizeof(s1));
-  printf("%d\n",sizeof(struct S1));
+  dump (&s1, sizeof(s));
+  printf("%d\n",sizeof(struct S));
   printf("sizeof(short) = %d\n", (int)sizeof(short));
   printf("sizeof(int) = %d\n", (int)sizeof(int));
   printf("sizeof(long) = %d\n", (int)sizeof(long));
