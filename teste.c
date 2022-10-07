@@ -6,22 +6,20 @@ void dump (void *p, int n) {
     p1++;
   }
 }
-struct S {
-  short cs;
-  int ci;
-} s = {0x55aa, -2050};
-struct S1 {
-  struct S *ps;
-  long cl1;
-  short cs1;
-} s1;
-
+struct prof {
+  short nivel;
+  int grau;
+  char *cursos;
+  char ano;
+};
 int main (void) {
-  s1.ps = &s;
-  s1.cl1 = (long) s.ci;
-  s1.cs1 = (s.cs >> 8) & 3;
-  dump (&s1, sizeof(s));
-  printf("%d\n",sizeof(struct S));
+  struct prof univ[2];
+  char nomes[] = {'c', 'e'};
+  univ[0].nivel = 12 << 3;
+  univ[0].grau = -3;
+  univ[0].cursos = &nomes[1];
+  univ[0].ano = 'd';
+  dump(univ, sizeof(struct prof));
   printf("sizeof(short) = %d\n", (int)sizeof(short));
   printf("sizeof(int) = %d\n", (int)sizeof(int));
   printf("sizeof(long) = %d\n", (int)sizeof(long));
