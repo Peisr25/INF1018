@@ -1,54 +1,64 @@
 /* Luiza Ferreira Camerini 2120214 3WB*/
+/* Joao Victor de Oliveira Amorim 2111295 3WB*/
 //#include "converteutf.h"
+
 #include <stdio.h>
-int converteUtf8Para32(FILE* arquivo_entrada, FILE* arquivo_saida) {
+int converteUtf8Para32(FILE *arquivo_entrada, FILE *arquivo_saida)
+{
   /*escrever o caractere BOM*/
-  int bom=0xFFFE0000;
+  int bom = 0xFFFE0000;
   fwrite(&bom, 4, 1, arquivo_saida);
 
   char c;
 
-  while (fread(&c,sizeof(char),1,arquivo_entrada)==1){
-    printf("caractere: %c\n",c);
-    if ((c & 0xF0) == 0xF0) {               /* 0xF0 = 1111 0000*/
+  while (fread(&c, sizeof(char), 1, arquivo_entrada) == 1)
+  {
+    printf("caractere: %c\n", c);
+    if ((c & 0xF0) == 0xF0)
+    { /* 0xF0 = 1111 0000*/
       printf("Chegou 1111 0000\n");
       c = c ^ 0xF0;
       int p = c;
-      for (int i=0; i<3; i++){
+      for (int i = 0; i < 3; i++)
+      {
         char a;
-        fread(&a,sizeof(char),1,arquivo_entrada);
+        fread(&a, sizeof(char), 1, arquivo_entrada);
         a = a ^ 0x80;
         p = p << 6;
         p = p + a;
       }
       fwrite(&p, 4, 1, arquivo_saida);
-
-    }else if ((c & 0xE0) == 0xE0) {         /*0xE0 = 1110 0000*/
-      printf("Chegou 1110 0000\n");         //3 bytes
+    }
+    else if ((c & 0xE0) == 0xE0)
+    {                               /*0xE0 = 1110 0000*/
+      printf("Chegou 1110 0000\n"); // 3 bytes
       c = c ^ 0xE0;
       int p = c;
-      for (int i=0; i<2; i++){
+      for (int i = 0; i < 2; i++)
+      {
         char a;
-        fread(&a,sizeof(char),1,arquivo_entrada);
+        fread(&a, sizeof(char), 1, arquivo_entrada);
         a = a ^ 0x80;
         p = p << 6;
         p = p + a;
+      }
+      fwrite(&p, 4, 1, arquivo_saida);
     }
-    fwrite(&p, 4, 1, arquivo_saida);
-
-    }else if ((c & 0xC0) == 0xC0) {         /* 0xC0 = 1100 0000 */
-      printf("chegou 1100 0000\n");         // 2 bytes
+    else if ((c & 0xC0) == 0xC0)
+    {                               /* 0xC0 = 1100 0000 */
+      printf("chegou 1100 0000\n"); // 2 bytes
       char a;
-      fread(&a,sizeof(char),1,arquivo_entrada);
-      c = c ^ 0xC0;
+      fread(&a, sizeof(char), 1, arquivo_entrada);
+      c = c ^ 0xC0; // transforma 1 em zero-1100->0000
       int p = c;
       p = p << 6;
       a = a ^ 0x80;
       p = p + a;
       fwrite(&p, 4, 1, arquivo_saida);
-
-    } else{                                 /* 0x80 = 1000 0000 */
-      printf("chegou 0\n");                 // quando o caracter é ASCII imprime direto
+    }
+    else
+    {                       /* 0x80 = 1000 0000 */
+      printf("chegou 0\n"); // quando o caracter é ASCII imprime direto
       int p = c;
       fwrite(&p, 4, 1, arquivo_saida);
     }
@@ -57,50 +67,72 @@ int converteUtf8Para32(FILE* arquivo_entrada, FILE* arquivo_saida) {
   return 0;
 }
 
+int converteUtf32Para8(FILE *arquivo_entrada, FILE *arquivo_saida)
+{
+  char c;
+  int bom = 0x0000FFFE, tempBOM, temp;
+  fread(&tempBOM, 4, 1, arquivo_entrada);
 
-int converteUtf32Para8(FILE *arquivo_entrada, FILE *arquivo_saida){
-    char strRetorno[5];
-    char c;
-    int bom=0xFFFE0000,temp;
-    fread(&temp, 4, 1, arquivo_entrada);
+  if (tempBOM != bom){
+    fprintf(stderr, "erro ao ler BOM");
+    return -1;
+  }
 
-    if(temp != bom){
-        fprintf(stderr,"erro ao ler BOM");
-        return -1;
+  // fwrite(&bom,4,1,arquivo_saida); utf-8 nao pode ter BOM
+
+  while (fread(&temp, sizeof(int), 1, arquivo_entrada) == 1){
+    printf("Caractere: %c\n", temp);
+
+    if ((temp <= 0x07F)){                               // verifica os dois primeiros bits & 0/0 e 1/1
+      char utf8 = temp;
+      fwrite(&utf8, sizeof(char), 1, arquivo_saida);
     }
 
-    fwrite(&bom,4,1,arquivo_saida);
-    while (fread(&temp,sizeof(char),1,arquivo_entrada)==1)
-    {
-        printf("Caractere: %c\n",temp);
-        if((temp & 0xC0)==0xC0){  // verifica os dois primeiros bits
-            
-        }
+    else if (temp <= 0x07FF){                          // transforma a primeira leitura (temp) em utf8
+      int utf32 = temp;
+      char utf8_1, utf8_2;
+
+      utf8_1 = (char)((((utf32) << 6) & 0x1f) | 0xC0); // 110.....
+      utf8_2 = (char)((((utf32) << 0) & 0x3F) | 0x80);  // 10......
+
+      fwrite(&utf8_1, sizeof(char), 1, arquivo_saida);
+      fwrite(&utf8_2, sizeof(char), 1, arquivo_saida);
     }
-    
-	if (code < 0x80) string[0] = code;
 
-	else if (code < 0x800) {   // 00000yyy yyxxxxxx
-		string[0] = (0b11000000 | (code >> 6));
-		string[1] = (0b10000000 | (code & 0x3f));
-	}
-	else if (code < 0x10000) {  // zzzzyyyy yyxxxxxx
-		string[0] = (0b11100000 | (code >> 12));         // 1110zzz
-		string[1] = (0b10000000 | ((code >> 6) & 0x3f)); // 10yyyyy
-		string[2] = (0b10000000 | (code & 0x3f));        // 10xxxxx
-	}
-	else if (code < 0x200000) { // 000uuuuu zzzzyyyy yyxxxxxx
-		string[0] = (0b11110000 | (code >> 18));          // 11110uuu
-		string[1] = (0b10000000 | ((code >> 12) & 0x3f)); // 10uuzzzz
-		string[2] = (0b10000000 | ((code >> 6)  & 0x3f)); // 10yyyyyy
-		string[3] = (0b10000000 | (code & 0x3f));         // 10xxxxxx
-	}
-}
-}
+    else if (temp <= 0xFFFF){
+      int utf32 = temp;
+      char utf8_1, utf8_2, utf8_3;
 
-int main(void){
-    FILE* arq = fopen("utf8_peq.txt","rb");
-    FILE* arqSaida = fopen("testeSaida","wb");
-    int teste = converteUtf8Para32(arq,arqSaida);
+      utf8_1 = (char)(((utf32 << 12) & 0x07) | 0xF0); //1110....
+      utf8_2 = (char)(((utf32 << 6) & 0x3F) |  0x80); //10......
+      utf8_3 = (char)(((utf32 << 0)  & 0x3F) | 0x80); //10......
+
+      fwrite(&utf8_1, sizeof(char), 1, arquivo_saida);
+      fwrite(&utf8_2, sizeof(char), 1, arquivo_saida);
+      fwrite(&utf8_3, sizeof(char), 1, arquivo_saida);
+    }
+    else if (temp <= 0x10FFFF){
+      int utf32 = temp;
+      char utf8_1, utf8_2, utf8_3, utf8_4;
+
+      utf8_1 = (char)(((utf32 << 18) & 0x07) | 0xF0); //11110...
+      utf8_2 = (char)(((utf32 << 12) & 0x3F) | 0x80); //10......
+      utf8_3 = (char)(((utf32 << 6)  & 0x3F) | 0x80); //10......
+      utf8_4 = (char)(((utf32 << 0)  & 0x3F) | 0x80); //10......
+
+    }
     return 0;
+  }
+}
+
+
+int main(void)
+{
+  FILE *arq = fopen("utf8_peq.txt", "rb");
+  FILE *arqSaida = fopen("testeSaida", "wb");
+  FILE* arq32 = fopen("utf32_peq.txt","rb");
+  FILE* arq32Saida = fopen("testeSaida32.txt","wb");
+  int teste = converteUtf8Para32(arq, arqSaida);
+  int teste32 = converteUtf32Para8(arq32,arq32Saida);
+  return 0;
 }
