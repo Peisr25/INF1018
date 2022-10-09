@@ -14,7 +14,7 @@ int converteUtf8Para32(FILE *arquivo_entrada, FILE *arquivo_saida)
 
     while (fread(&c, sizeof(char), 1, arquivo_entrada) == 1)
     {
-        printf("caractere: %c\n", c);
+        printf("caractere: %x\n", c);
         if ((c & 0xF0) == 0xF0)
         { /* 0xF0 = 1111 0000*/
             printf("Chegou 1111 0000\n");
@@ -141,10 +141,10 @@ int converteUtf32Para8(FILE *arquivo_entrada, FILE *arquivo_saida)
 int main(void)
 {
     FILE *arq = fopen("utf8_peq.txt", "rb");
-    FILE *arqSaida = fopen("testeSaida", "wb");
+    FILE *arqSaida = fopen("testeSaida.txt", "wb");
     FILE *arq32 = fopen("utf32_peq.txt", "rb");
     FILE *arq32Saida = fopen("testeSaida32.txt", "wb");
-    // int teste = converteUtf8Para32(arq, arqSaida);
-    int teste32 = converteUtf32Para8(arq32, arq32Saida);
+    int teste = converteUtf8Para32(arq, arqSaida);
+    //int teste32 = converteUtf32Para8(arq32, arq32Saida);
     return 0;
 }
