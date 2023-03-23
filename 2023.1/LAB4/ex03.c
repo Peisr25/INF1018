@@ -22,6 +22,7 @@ int string2num (char *s, int base) {
 }
 
 int xbyte (packed_t word, int bytenum) {
+  int teste;
   //separar a partir da seleção da casa e retornar o numero
   // 01abcd02 0  - retornar 02
   // 0 - 0 ate 7 bits (1111)
@@ -30,15 +31,19 @@ int xbyte (packed_t word, int bytenum) {
   // 3 - 24 ate 31 bits (1111 0000 0000 0000)
   if(bytenum == 3){
     // deve pegar os primeiros (mais significativos) 8 bits e deslocar 24bits para direita
-    word >>= 24;
+   teste =( word >> 24);
   }
   else if(bytenum == 2){
-    word >>= 16;
+    teste=(word >> 16);
   }
   else if(bytenum == 1){
-    word >>=8;
+    teste = (word >>8);
   }
-  return word & 0xFF; // onde retorna os bytes menos significativos
+  else{
+    teste = word; // onde retorna os bytes menos significativos
+  }
+  teste = (teste <<24) >>24; // desloca os bits para a esquerda e com o bit mais significativo ele é deslocado para a direita  
+  return teste;
 }
 
 int main (int argc, char **argv) {
