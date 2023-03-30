@@ -34,9 +34,10 @@ L1:
   je  L2          /* goto L2 */
 
 	movl (%r12), %ecx /* conteudo de r12 alocado no registrador ecx*/
-	testl $1, %ecx /* if(*p % 2 == 0) */
-	jnz L3
-  movl  %ecx, %eax    /* eax = *r12 */
+	andl $1, %ecx /* if(*p % 2 == 0) */
+	jne L3
+
+  movl  (%r12), %eax    /* eax = *r12 porque %ecx nao pode ser passado para %eax */
 /*************************************************************/
 /* este trecho imprime o valor de %eax (estraga %eax)  */
   movq    $Sf, %rdi    /* primeiro parametro (ponteiro)*/
