@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/2023.1/T1/bigint",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "logging": {
+                "engineLogging": true,
+                "trace": true,
+                "traceResponse": true
+            },
+            "MIMode": "gdb"
+        }
+    ]
+}

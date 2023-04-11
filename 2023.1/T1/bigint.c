@@ -18,7 +18,7 @@ void dump_128bits(void *p, int n)
 /* Atribuição (com extensão) */
 void big_val(BigInt res, long val)
 {
-    int i;
+    int i,j;
     unsigned char *p = (unsigned char *)res;
     // grava os primeiros 8 bytes do long nos 8 primeiros do BigInt
     for (i = 0; i < 8; i++)
@@ -26,7 +26,7 @@ void big_val(BigInt res, long val)
         *p++ = (unsigned char)val;
         val >>= 8;
     }
-    for (i = 0; i < NUM_BITS / 8; i++)
+    for (j = 0; i < NUM_BITS / 8; i++)
     {
         *p++ = 0;
     }
@@ -65,28 +65,42 @@ void big_comp2(BigInt res, BigInt a)
     }
     if (eh_negativo)
     {
-        //se res eh negativo seta o bit mais significativo para 1
+        // se res eh negativo seta o bit mais significativo para 1
         res[NUM_BITS / 8 - 1] |= 0X80;
     }
-    for(i = 0; i< NUM_BITS/8;i++){
+    for (i = 0; i < NUM_BITS / 8; i++)
+    {
         a[i] = aux[i];
     }
 }
 
 /* res = a + b */
-void big_sum(BigInt res, BigInt a, BigInt b){
+// void big_sum(BigInt res, BigInt a, BigInt b)
+// {
+//     unsigned char vai_um = 0;
+//     for (int i = NUM_BITS / 8 - 1; i >= 0; i--)
+//     {
+//         unsigned char sum = a[i] ^ b[i] ^ vai_um;
+//         vai_um = (a[i] & b[i]) | (vai_um & (a[i] ^ b[i]));
+//         res[i] = sum;
+//     }
+// }
+
+void big_sum(BigInt res, BigInt a, BigInt b)
+{
     int i;
-    unsigned char *pont_a = (unsigned char*)a;
-    unsigned char *pont_b = (unsigned char*)b;
-    unsigned char *pont_res = (unsigned char*)res;
+    unsigned char *pont_a = (unsigned char *)a;
+    unsigned char *pont_b = (unsigned char *)b;
+    unsigned char *pont_res = (unsigned char *)res;
     unsigned char vai_um = 0;
-    for(i = 0; i< NUM_BITS / 8; i++){
-        unsigned char soma = *pont_a ^ *pont_b ^ vai_um;
-        vai_um = (*pont_a & *pont_b) | (vai_um & (*pont_a ^ *pont_b));
+    for (i = 0; i < NUM_BITS / 8; i++)
+    {
+        unsigned char soma = *pont_a + *pont_b + vai_um;
+        vai_um = soma < *pont_a || soma < *pont_b;
         *pont_res = soma;
-        *pont_a++;
-        *pont_b++;
-        *pont_res++;
+        pont_a++;
+        pont_b++;
+        pont_res++;
     }
 }
 
@@ -108,23 +122,24 @@ void big_shr(BigInt res, BigInt a, int n);
 void big_sar(BigInt res, BigInt a, int n);
 int main(void)
 {
-    BigInt res1,res2;
-    BigInt num = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    BigInt num2 = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    //dump_128bits(num, 16);
+    BigInt num,num2,res1, res2;
+    //BigInt num = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    BigInt res = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    // dump_128bits(num, 16);
     long x = 123456789;
     long y = 987654321;
-    //big_val(num, x);
-    //dump_128bits(num, 16);
+    // big_val(num, x);
+    // dump_128bits(num, 16);
 
-    //big_comp2(res1,num);
-    //dump_128bits(res1,16);
+    // big_comp2(res1,num);
+    // dump_128bits(res1,16);
 
-    big_val(num,123456789);
-    dump_128bits(num,16);
-    big_val(num2,987654321);
-    dump_128bits(num2,16);
-    big_sum(res2,num,num2);
-    dump_128bits(res2,16);
+    big_val(num, 123456789);
+    dump_128bits(num, 16);
+    big_val(num2, 987654321);
+    dump_128bits(num2, 16);
+    big_sum(res, num, num2);
+    dump_128bits(res, 16);
+    printf("%x",res);
     return 0;
 }
