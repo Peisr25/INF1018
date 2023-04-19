@@ -97,24 +97,52 @@ void big_sum(BigInt res, BigInt a, BigInt b)
     unsigned char *pont_a = (unsigned char *)a;
     unsigned char *pont_b = (unsigned char *)b;
     unsigned char *pont_res = (unsigned char *)res;
-    unsigned char vai_um = 0;
+    //unsigned char vai_um = 0;
+    unsigned short byteA, byteB;
+    unsigned short vai_um = 0;
+    unsigned short soma;
     puts("inicio do loop");
     for (i = 0; i < NUM_BITS / 8; i++)
     {
-        printf("pont_a: %x\n", *pont_a);
-        printf("pont_b: %x\n", *pont_b);
-        printf("pont_res: %x\n", *pont_res);
-        unsigned char soma = *pont_a + *pont_b + vai_um;
-        printf("soma: %d\n", soma);
-        vai_um = soma < *pont_a || soma < *pont_b;
+        // printf("pont_a: %hhx\n", *pont_a);
+        // printf("pont_b: %hhx\n", *pont_b);
+        // printf("pont_res: %hhx\n", *pont_res);
+        // soma 1 a aux
+        byteA = a[i];
+        byteB = b[i];
+        printf("byteA: %hhx\n", byteA);
+        printf("byteB: %hhx\n", byteB);
+        soma = byteA + byteB + vai_um;
+        printf("soma: %hhx\n", soma);
+        if (soma & 0x100){
+            vai_um = 1;
+        }
+        else{
+            vai_um = 0;
+        }
         printf("vai_um: %d\n", vai_um);
-        printf("pont_res: %x\n", *pont_res);
-        *pont_res = soma;
-        pont_a++;
-        pont_b++;
-        pont_res++;
+        res[i] = (unsigned char)soma;
     }
 }
+
+        // unsigned short soma = *pont_a + *pont_b + vai_um;
+
+        // printf("soma: %hhx\n", soma);
+        // if(soma & 0x100){
+        //     vai_um = 1;
+        // }
+        // else{
+        //     vai_um = 0; 
+        // }
+        // //vai_um = soma < *pont_a || soma < *pont_b;
+        // printf("vai_um: %d\n", vai_um);
+        // printf("pont_res: %hhx\n", *pont_res);
+        // *pont_res = soma;
+        // pont_a++;
+        // pont_b++;
+        // pont_res++;
+    //}
+//}
 
 /* res = a - b */
 void big_sub(BigInt res, BigInt a, BigInt b);
