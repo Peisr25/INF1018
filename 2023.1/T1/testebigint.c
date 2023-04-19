@@ -140,7 +140,7 @@ static char * test_big_sum_carry() {
     BigInt a = {0xff, 0xff, 0xff, 0xff};
     BigInt b = {0x00, 0x01, 0x02, 0x03};
     BigInt res = {0};
-    BigInt expected = {0x00, 0x00, 0x00, 0x01};
+    BigInt expected = {0xff, 0x00, 0x02, 0x03, 0x01};
     big_sum(res, a, b);
     big_print(res);
     mu_assert("error, res != UINT64_MAX * 2", big_equal(res,expected));
@@ -167,15 +167,14 @@ static char * all_tests() {
     mu_run_test(test_big_comp2_pos);
     mu_run_test(test_big_comp2_neg);
     mu_run_test(test_big_comp2_zero);
-    //mu_run_test(test_big_sum_zero);
-    //mu_run_test(test_big_sum_one);
+    mu_run_test(test_big_sum_zero);
+    mu_run_test(test_big_sum_one);
     mu_run_test(test_big_sum_carry);
     return 0;
 }
 
 int main(int argc, char **argv) {
-    BigInt a = {0xff,0xff,0xff,0xff};
-    big_print(a);
+    
     char *result = all_tests();
     if (result != 0) {
         printf("%s\n", result);
