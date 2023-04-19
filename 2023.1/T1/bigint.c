@@ -3,22 +3,22 @@
 #define NUM_BITS 128
 typedef unsigned char BigInt[NUM_BITS / 8];
 
-// void big_print(BigInt a)
-// {
-//     char str[NUM_BITS / 8 * 2 + 1]; // aloca espaço para a string
-//     int i;
-//     int eh_negativo = (a[NUM_BITS / 8 - 1] & 0x80) == 0x80; // verifica se o bit mais significativo é 1
-//     if (eh_negativo)
-//     {
-//         printf("-"); // imprime o sinal de menos
-//     }
-//     for (i = 0; i < NUM_BITS / 8; i++)
-//     {
-//         sprintf(str, "%02X", a[i]); // converte cada byte em uma string de dois dígitos hexadecimais
-//         printf("%s", str);          // imprime a string
-//     }
-//     printf("\n"); // imprime uma quebra de linha
-// }
+void big_print(BigInt a)
+{
+    char str[NUM_BITS / 8 * 2 + 1]; // aloca espaço para a string
+    int i;
+    int eh_negativo = (a[NUM_BITS / 8 - 1] & 0x80) == 0x80; // verifica se o bit mais significativo é 1
+    if (eh_negativo)
+    {
+        printf("-"); // imprime o sinal de menos
+    }
+    for (i = 0; i < NUM_BITS / 8; i++)
+    {
+        sprintf(str, "%02X", a[i]); // converte cada byte em uma string de dois dígitos hexadecimais
+        printf("%s", str);          // imprime a string
+    }
+    printf("\n"); // imprime uma quebra de linha
+}
 
 void dump_128bits(void *p, int n)
 {
@@ -97,31 +97,24 @@ void big_sum(BigInt res, BigInt a, BigInt b)
     unsigned char *pont_a = (unsigned char *)a;
     unsigned char *pont_b = (unsigned char *)b;
     unsigned char *pont_res = (unsigned char *)res;
-    //unsigned char vai_um = 0;
-    unsigned short byteA, byteB;
-    unsigned short vai_um = 0;
+    unsigned char vai_um = 0;
     unsigned short soma;
     puts("inicio do loop");
     for (i = 0; i < NUM_BITS / 8; i++)
     {
-        // printf("pont_a: %hhx\n", *pont_a);
-        // printf("pont_b: %hhx\n", *pont_b);
-        // printf("pont_res: %hhx\n", *pont_res);
-        // soma 1 a aux
-        byteA = a[i];
-        byteB = b[i];
-        printf("byteA: %hhx\n", byteA);
-        printf("byteB: %hhx\n", byteB);
-        soma = byteA + byteB + vai_um;
-        printf("soma: %hhx\n", soma);
+        soma = *pont_a + *pont_b + vai_um;
+
         if (soma & 0x100){
             vai_um = 1;
         }
         else{
             vai_um = 0;
         }
-        printf("vai_um: %d\n", vai_um);
-        res[i] = (unsigned char)soma;
+
+        *pont_res = (unsigned char)soma;
+        pont_a++;
+        pont_b++;
+        pont_res++; 
     }
 }
 
@@ -162,34 +155,39 @@ void big_shr(BigInt res, BigInt a, int n);
 /* res = a >> n (aritmético)*/
 void big_sar(BigInt res, BigInt a, int n);
 
-// int main(void)
-// {
-//     BigInt num, res1, res2;
-//     // BigInt a = {0x01, 0x02, 0x03, 0x04, // 16909060 em decimal
-//     //             0x00, 0x00, 0x00, 0x00,
-//     //             0x00, 0x00, 0x00, 0x00,
-//     //             0x00, 0x00, 0x00, 0x00};
-//     // BigInt num = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-//     BigInt res = {0};
-//     BigInt num2 = {0};
-//     // dump_128bits(num, 16);
-//     long x = 16909060;
-//     long y = 987654321;
-//     big_val(num2, x);
-//     big_print(num2);
-//     big_comp2(res, num2);
-//     big_print(res);
-//     // dump_128bits(num, 16);
+int main(void)
+{
+    BigInt num, res1, res2;
+    // BigInt a = {0x01, 0x02, 0x03, 0x04, // 16909060 em decimal
+    //             0x00, 0x00, 0x00, 0x00,
+    //             0x00, 0x00, 0x00, 0x00,
+    //             0x00, 0x00, 0x00, 0x00};
+     BigInt num2 = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    BigInt res;
+    //BigInt num2;
+    BigInt num3;
+    // dump_128bits(num, 16);
+    long x = 1532;
+    long y = 1245;
+    big_val(num2, x);
+    big_print(num2);
+    big_val(num3,y);
+    big_print(num3);
+    big_sum(res, num2, num3);
+    big_print(res);
+    //big_comp2(res, num2);
+    //big_print(res);
+    // dump_128bits(num, 16);
 
-//     // big_comp2(res1,num);
-//     // dump_128bits(res1,16);
+    // big_comp2(res1,num);
+    // dump_128bits(res1,16);
 
-//     // big_val(num, -123456789);
-//     // dump_128bits(num, 16);
-//     // big_val(num2, 987654321);
-//     // dump_128bits(num2, 16);
-//     // big_sum(res, num, num2);
-//     // dump_128bits(res, 16);
-//     // printf("%x", res);
-//     return 0;
-// }
+    // big_val(num, -123456789);
+    // dump_128bits(num, 16);
+    // big_val(num2, 987654321);
+    // dump_128bits(num2, 16);
+    // big_sum(res, num, num2);
+    // dump_128bits(res, 16);
+    // printf("%x", res);
+    return 0;
+}
