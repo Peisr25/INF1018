@@ -158,7 +158,16 @@ static char * test_big_sum_zero() {
     return 0;
 }
 
-
+static char * test_big_sub_case1() {
+    BigInt a = {0x00, 0x00, 0x00, 0x01};
+    BigInt b = {0x00, 0x00, 0x00, 0x02};
+    BigInt expected_res = {0xff, 0xff, 0xff, 0xff};
+    BigInt res;
+    big_sub(res, a, b);
+    big_print(res);
+    mu_assert("error, test_big_sub_case1", big_equal(expected_res, res));
+    return 0;
+}
 static char * all_tests() {
     mu_run_test(test_big_val_0);
     mu_run_test(test_big_val_1);
@@ -170,6 +179,7 @@ static char * all_tests() {
     mu_run_test(test_big_sum_zero);
     mu_run_test(test_big_sum_one);
     mu_run_test(test_big_sum_carry);
+    mu_run_test(test_big_sub_case1);
     return 0;
 }
 
