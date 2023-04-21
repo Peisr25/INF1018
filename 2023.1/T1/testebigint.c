@@ -162,7 +162,7 @@ static char * test_big_sub_case1() {
     // BigInt a = {0x00, 0x00, 0x00, 0x01};
     // BigInt b = {0x00, 0x00, 0x00, 0x02};
     BigInt a,b;
-    BigInt expected_res = {0x00, 0x00, 0x00, 0x00,0xff};
+    BigInt expected_res = {0x06};
     BigInt res;
     big_val(a,2);
     puts("big_val 2");
@@ -180,16 +180,16 @@ static char * test_big_sub_case1() {
     return 0;
 }
 static char * all_tests() {
-    // mu_run_test(test_big_val_0);
-    // mu_run_test(test_big_val_1);
-    // mu_run_test(test_big_val_neg);
-    // mu_run_test(test_big_val_pos);
-    // mu_run_test(test_big_comp2_pos);
-    // mu_run_test(test_big_comp2_neg);
-    // mu_run_test(test_big_comp2_zero);
-    // mu_run_test(test_big_sum_zero);
-    // mu_run_test(test_big_sum_one);
-    // mu_run_test(test_big_sum_carry);
+    mu_run_test(test_big_val_0);
+    mu_run_test(test_big_val_1);
+    mu_run_test(test_big_val_neg);
+    mu_run_test(test_big_val_pos);
+    mu_run_test(test_big_comp2_pos);
+    mu_run_test(test_big_comp2_neg);
+    mu_run_test(test_big_comp2_zero);
+    mu_run_test(test_big_sum_zero);
+    mu_run_test(test_big_sum_one);
+    mu_run_test(test_big_sum_carry);
     mu_run_test(test_big_sub_case1);
     return 0;
 }

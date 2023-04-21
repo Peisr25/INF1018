@@ -14,7 +14,7 @@ typedef unsigned char BigInt[NUM_BITS / 8];
 //     }
 //     for (i = 0; i < NUM_BITS / 8; i++)
 //     {
-//         sprintf(str, "%02X", a[i]); // converte cada byte em uma string de dois dígitos hexadecimais
+//         sprintf(str, "%02X ", a[i]); // converte cada byte em uma string de dois dígitos hexadecimais
 //         printf("%s", str);          // imprime a string
 //     }
 //     printf("\n"); // imprime uma quebra de linha
@@ -33,26 +33,59 @@ void dump_128bits(void *p, int n)
 }
 
 /* Atribuição (com extensão) */
-void big_val(BigInt res, long val)
-{
-    int i,j;
-    unsigned char *p = (unsigned char *)res;
-    int eh_negativo = (val >> 63) == -1;
-    // grava os primeiros 8 bytes do long nos 8 primeiros do BigInt
-    for (i = 0; i < NUM_BITS/8 ; i++)
-    {
-        *p = (unsigned char)val;
-        val >>= 8;
-        p++;
-    }
-    for (j = 0; j < NUM_BITS / 8; j++)
+void big_val(BigInt res, long val) {
+
+  unsigned char val_bytes[8];
+  int eh_negativo = (val >> 63) == -1;
+
+  for (int i = 0; i < 8; i++) {
+    val_bytes[i] = (val >> (i * 8)) & 0xFF;
+  }
+
+  for (int i = 0; i < 8; i++) {
+    res[i] = val_bytes[i];
+  }
+
+  for (int i = 8; i < NUM_BITS/8; i++)
     {
         if (eh_negativo)
-            *p++ = 0xFF;
+            res[i] = 0xFF;
         else
-            *p++ = 0x00;
+            res[i] = 0x00;
     }
-}
+  }
+
+
+// void big_val(BigInt res, long val)
+// {
+//     int i,j;
+//     unsigned char *p = (unsigned char *)res;
+//     unsigned char *q;
+//     int eh_negativo = (val >> 63) == -1;
+//     // grava os primeiros 8 bytes do long nos 8 primeiros do BigInt
+//     for (i = 0; i < 8; i++)
+//     {
+//         printf("val: %x\n",val);
+//         *p = (unsigned char)val;
+//         val >>= 8;
+//         printf("val pos >> 8: %x\n",val);
+//         //res[i]=*p;
+//         p++;
+//         printf("*p: %x\n", *p);
+//     }
+//     puts("big_print res");
+//     big_print(res);
+//     q = p;
+//     for (i = 0; i < 2; i++)
+//     {
+//         if (eh_negativo)
+//             *q++ = 0xFF;
+//         else
+//             *q++ = 0x00;
+//     }
+//     puts("big_print res");
+//     big_print(res);
+// }
 
 /* Operações Aritméticas */
 
@@ -126,11 +159,11 @@ void big_sum(BigInt res, BigInt a, BigInt b)
 }
 
 /* res = a - b */
-void big_sub(BigInt res, BigInt a, BigInt b){
+void big_sub(BigInt res, BigInt a, BigInt b, BigInt c){
     // calcular comp2 de b e somar com a é a função big_sub
-    unsigned char *pont_a = (unsigned char *)a;
-    unsigned char *pont_b = (unsigned char *)b;
-    unsigned char *pont_res = (unsigned char *)res;
+    // unsigned char *pont_a = (unsigned char *)a;
+    // unsigned char *pont_b = (unsigned char *)b;
+    // unsigned char *pont_res = (unsigned char *)res;
     BigInt aux;
     big_comp2(aux, b);
     puts("DENTRO BIG-SUB print aux pos comp2 de b");
@@ -159,38 +192,41 @@ void big_sar(BigInt res, BigInt a, int n);
 
 // int main(void)
 // {
-//     BigInt num, res1, res2;
-//     BigInt a = {0x00, 0x00, 0x00, 0x01};
-//     BigInt b = {0x00, 0x00, 0x00, 0x02};
-//     puts("complemento a 2 de b:");
-//     big_comp2(res1,b);
-//     big_print(res1);
+//     BigInt num, res1, res2,a,b;
+//     // BigInt a = {0x00, 0x00, 0x00, 0x01};
+//     // BigInt b = {0x00, 0x00, 0x00, 0x02};
 //     BigInt num2 = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 //     BigInt res;
 //     //BigInt num2;
 //     BigInt num3;
 //     // dump_128bits(num, 16);
-//     long x = 1532;
-//     long y = 1245;
+//     long x = 2;
+//     long y = 4;
 //     // big_val(num2, x);
 //     // big_print(num2);
 //     // big_val(num3,y);
 //     // big_print(num3);
-//     big_sub(res, a, b);
+
+//     printf("Endereço de a antes: %p\n", (void*) &a);
+
+//     big_val(a,x);
+//     puts("big_val 2");
+//     big_print(a);
+//     printf("Endereço de a dps: %p\n", (void*) &a);
+
+//     printf("Endereço de b antes: %p\n", (void*) &b);
+
+//     int i;
+//     for (i = 0; i < NUM_BITS / 8; i++) {
+//         res1[i] = a[i];
+//     }
+//     big_val(b,y);
+//     puts("big_val -4");
+//     big_print(b);
+//     puts("start big_sub");
+//     big_sub(res, a, b,res1);
+
 //     big_print(res);
-//     //big_comp2(res, num2);
-//     //big_print(res);
-//     // dump_128bits(num, 16);
 
-//     // big_comp2(res1,num);
-//     // dump_128bits(res1,16);
-
-//     // big_val(num, -123456789);
-//     // dump_128bits(num, 16);
-//     // big_val(num2, 987654321);
-//     // dump_128bits(num2, 16);
-//     // big_sum(res, num, num2);
-//     // dump_128bits(res, 16);
-//     // printf("%x", res);
 //     return 0;
 // }
