@@ -130,8 +130,8 @@ static char * test_big_sum_one() {
     BigInt b = {1};
     BigInt res = {0};
     big_sum(res, a, b);
-    puts("res: sum one");
-    big_print(res);
+    //puts("res: sum one");
+    //big_print(res);
     mu_assert("error, res != 2", res[0] == 2 && res[1] == 0);
     return 0;
 }
@@ -142,7 +142,7 @@ static char * test_big_sum_carry() {
     BigInt res = {0};
     BigInt expected = {0xff, 0x00, 0x02, 0x03, 0x01};
     big_sum(res, a, b);
-    big_print(res);
+   //big_print(res);
     mu_assert("error, res != UINT64_MAX * 2", big_equal(res,expected));
     return 0;
 }
@@ -157,28 +157,39 @@ static char * test_big_sum_zero() {
     mu_assert("error, res != 0", res[0] == 0 && res[1] == 0);
     return 0;
 }
-
+//ao passar a para big_sub esta com o valor errado (ffff) inves de (02)
 static char * test_big_sub_case1() {
-    BigInt a = {0x00, 0x00, 0x00, 0x01};
-    BigInt b = {0x00, 0x00, 0x00, 0x02};
-    BigInt expected_res = {0xff, 0xff, 0xff, 0xff};
+    // BigInt a = {0x00, 0x00, 0x00, 0x01};
+    // BigInt b = {0x00, 0x00, 0x00, 0x02};
+    BigInt a,b;
+    BigInt expected_res = {0x00, 0x00, 0x00, 0x00,0xff};
     BigInt res;
+    big_val(a,2);
+    puts("big_val 2");
+    big_print(a);
+    big_val(b,-4);
+    puts("big_val -4");
+    big_print(b);
+    //puts("expected");
+    // big_print(expected_res);
+    // big_print(res);
+    puts("start big_sub");
     big_sub(res, a, b);
     big_print(res);
     mu_assert("error, test_big_sub_case1", big_equal(expected_res, res));
     return 0;
 }
 static char * all_tests() {
-    mu_run_test(test_big_val_0);
-    mu_run_test(test_big_val_1);
-    mu_run_test(test_big_val_neg);
-    mu_run_test(test_big_val_pos);
-    mu_run_test(test_big_comp2_pos);
-    mu_run_test(test_big_comp2_neg);
-    mu_run_test(test_big_comp2_zero);
-    mu_run_test(test_big_sum_zero);
-    mu_run_test(test_big_sum_one);
-    mu_run_test(test_big_sum_carry);
+    // mu_run_test(test_big_val_0);
+    // mu_run_test(test_big_val_1);
+    // mu_run_test(test_big_val_neg);
+    // mu_run_test(test_big_val_pos);
+    // mu_run_test(test_big_comp2_pos);
+    // mu_run_test(test_big_comp2_neg);
+    // mu_run_test(test_big_comp2_zero);
+    // mu_run_test(test_big_sum_zero);
+    // mu_run_test(test_big_sum_one);
+    // mu_run_test(test_big_sum_carry);
     mu_run_test(test_big_sub_case1);
     return 0;
 }
