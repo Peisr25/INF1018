@@ -3,22 +3,22 @@
 #define NUM_BITS 128
 typedef unsigned char BigInt[NUM_BITS / 8];
 
-// void big_print(BigInt a)
-// {
-//     char str[NUM_BITS / 8 * 2 + 1]; // aloca espaço para a string
-//     int i;
-//     int eh_negativo = (a[NUM_BITS / 8 - 1] & 0x80) == 0x80; // verifica se o bit mais significativo é 1
-//     if (eh_negativo)
-//     {
-//         printf("-"); // imprime o sinal de menos
-//     }
-//     for (i = 0; i < NUM_BITS / 8; i++)
-//     {
-//         sprintf(str, "%02X ", a[i]); // converte cada byte em uma string de dois dígitos hexadecimais
-//         printf("%s", str);          // imprime a string
-//     }
-//     printf("\n"); // imprime uma quebra de linha
-// }
+void big_print(BigInt a)
+{
+    char str[NUM_BITS / 8 * 2 + 1]; // aloca espaço para a string
+    int i;
+    int eh_negativo = (a[NUM_BITS / 8 - 1] & 0x80) == 0x80; // verifica se o bit mais significativo é 1
+    if (eh_negativo)
+    {
+        printf("-"); // imprime o sinal de menos
+    }
+    for (i = 0; i < NUM_BITS / 8; i++)
+    {
+        sprintf(str, "%02X ", a[i]); // converte cada byte em uma string de dois dígitos hexadecimais
+        printf("%s", str);          // imprime a string
+    }
+    printf("\n"); // imprime uma quebra de linha
+}
 
 void dump_128bits(void *p, int n)
 {
@@ -130,26 +130,26 @@ void big_sum(BigInt res, BigInt a, BigInt b)
     unsigned char vai_um = 0;
     unsigned short soma;
 
-    puts("big_print a antes");
-    big_print(a);
-    puts("big_print b antes");
-    big_print(b);
+    // puts("big_print a antes");
+    // big_print(a);
+    // puts("big_print b antes");
+    // big_print(b);
     for (i = 0; i < NUM_BITS / 8; i++)
     {
-        printf("byteA: %hhx\n", *pont_a);
-        printf("byteB: %hhx\n", *pont_b);
+        // printf("byteA: %hhx\n", *pont_a);
+        // printf("byteB: %hhx\n", *pont_b);
         soma = *pont_a + *pont_b + vai_um;
-        printf("soma: %x\n",soma);
+        // printf("soma: %x\n",soma);
         if (soma & 0x100){
             vai_um = 1;
-            puts("vaium");
+            // puts("vaium");
         }
         else{
             vai_um = 0;
-            puts("nao vaium");
+            // puts("nao vaium");
         }
         *pont_res = soma;
-        printf("res: %x\n",*pont_res);
+        // printf("res: %x\n",*pont_res);
         pont_a++;
         pont_b++;
         pont_res++; 
@@ -160,10 +160,6 @@ void big_sum(BigInt res, BigInt a, BigInt b)
 
 /* res = a - b */
 void big_sub(BigInt res, BigInt a, BigInt b, BigInt c){
-    // calcular comp2 de b e somar com a é a função big_sub
-    // unsigned char *pont_a = (unsigned char *)a;
-    // unsigned char *pont_b = (unsigned char *)b;
-    // unsigned char *pont_res = (unsigned char *)res;
     BigInt aux;
     big_comp2(aux, b);
     puts("DENTRO BIG-SUB print aux pos comp2 de b");
@@ -177,12 +173,67 @@ void big_sub(BigInt res, BigInt a, BigInt b, BigInt c){
 
 
 /* res = a * b */
-void big_mul(BigInt res, BigInt a, BigInt b);
+void big_mul(BigInt res, BigInt a, BigInt b){
+    BigInt aux = {0};
+    int i,j;
+    unsigned char *pont_a = (unsigned char *)a;
+    unsigned char *pont_b = (unsigned char *)b;
+    unsigned char *pont_res = (unsigned char *)res;
+
+    for (i = 0; i < NUM_BITS / 8; i++){
+
+        unsigned char vai_um = 0;
+        for (j = 0; j < NUM_BITS / 8; j++){
+            unsigned short mult = ((*pont_a) * (*pont_b)) + vai_um;
+            printf("mult: %x\n",mult);
+            vai_um = mult >> 8;
+            aux[j + i] = mult;
+            pont_b++;
+        }
+        if(vai_um){
+            aux[j+i] = vai_um;
+        }
+        pont_b -= NUM_BITS/8;
+        pont_a++;
+        big_sum(res,res,aux);
+        memset(aux,0,sizeof(aux));
+    }
+}
 
 /* Operações de Deslocamento */
 
 /* res = a << n */
-void big_shl(BigInt res, BigInt a, int n);
+void big_shl(BigInt res, BigInt a, int n)
+{
+    int i;
+    unsigned char *pont_a = (unsigned char *)a;
+    unsigned char *pont_res = (unsigned char *)res;
+    unsigned char vai_um = 0;
+    unsigned short soma;
+    int bytes_shift = n/8; //quantidade de bytes que serão deslocados
+    int bits_shift = n%8; //quantidade de bits que serão deslocados dentro do byte
+
+    //copia a para res para não modificar o valor original
+    memcpy(res, a, NUM_BITS / 8);
+
+    //realiza o deslocamento de n bits para a esquerda
+    for (i = NUM_BITS / 8 - 1; i >= bytes_shift; i--)
+    {
+        soma = (*pont_a << bits_shift) + vai_um;
+        vai_um = (*pont_a & (0xFF >> (8 - bits_shift))) >> (8 - bits_shift);
+        *pont_res = soma;
+        pont_a++;
+        pont_res++;
+    }
+
+    //preenche com zeros os bytes que foram deslocados
+    for (i = 0; i < bytes_shift; i++)
+    {
+        *pont_res = 0;
+        pont_res++;
+    }
+}
+
 
 /* res = a >> n (lógico)*/
 void big_shr(BigInt res, BigInt a, int n);
@@ -190,43 +241,40 @@ void big_shr(BigInt res, BigInt a, int n);
 /* res = a >> n (aritmético)*/
 void big_sar(BigInt res, BigInt a, int n);
 
-// int main(void)
-// {
-//     BigInt num, res1, res2,a,b;
-//     // BigInt a = {0x00, 0x00, 0x00, 0x01};
-//     // BigInt b = {0x00, 0x00, 0x00, 0x02};
-//     BigInt num2 = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-//     BigInt res;
-//     //BigInt num2;
-//     BigInt num3;
-//     // dump_128bits(num, 16);
-//     long x = 2;
-//     long y = 4;
-//     // big_val(num2, x);
-//     // big_print(num2);
-//     // big_val(num3,y);
-//     // big_print(num3);
+int main(void)
+{
+    BigInt num, res1, res2,a,b;
+    // BigInt a = {0x00, 0x00, 0x00, 0x01};
+    // BigInt b = {0x00, 0x00, 0x00, 0x02};
+    BigInt num2 = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    BigInt res;
+    //BigInt num2;
+    BigInt num3;
+    // dump_128bits(num, 16);
+    long x = 16909060;
+    long y = 16909060;
 
-//     printf("Endereço de a antes: %p\n", (void*) &a);
+    //BigInt res = {0};
+    // BigInt a = {0x12345678, 0x9ABCDEF0};
+    // BigInt b = {0xFFFFFFFF, 0xFFFFFFFF};
+    //BigInt a,b;
+    big_val(a,16909060);
+    big_val(b,99);
+    BigInt expected_res;
+    big_val(expected_res,-33818120);
+    big_mul(res, a, b);
+    big_print(res);
+    puts("expected");
+    big_print(expected_res);
 
-//     big_val(a,x);
-//     puts("big_val 2");
-//     big_print(a);
-//     printf("Endereço de a dps: %p\n", (void*) &a);
+    // big_val(a,x);
+    // puts("big_val 4");
+    // big_print(a);
 
-//     printf("Endereço de b antes: %p\n", (void*) &b);
+    // big_val(b,y);
+    // puts("big_val 2");
+    // big_print(b);
+    // big_mul(res,a,b);
 
-//     int i;
-//     for (i = 0; i < NUM_BITS / 8; i++) {
-//         res1[i] = a[i];
-//     }
-//     big_val(b,y);
-//     puts("big_val -4");
-//     big_print(b);
-//     puts("start big_sub");
-//     big_sub(res, a, b,res1);
-
-//     big_print(res);
-
-//     return 0;
-// }
+    return 0;
+}

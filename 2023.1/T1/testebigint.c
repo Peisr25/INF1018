@@ -132,10 +132,10 @@ static char * test_big_sum_one() {
     big_sum(res, a, b);
     //puts("res: sum one");
     //big_print(res);
-    mu_assert("error, res != 2", res[0] == 2 && res[1] == 0);
+    mu_assert("Erro: res != 2", res[0] == 2 && res[1] == 0);
     return 0;
 }
-static char * test_big_sum_carry() {
+static char * test_big_sum_vai_um() {
     // Testa se a soma de dois bigint com overflow resulta no valor correto
     BigInt a = {0xff, 0xff, 0xff, 0xff};
     BigInt b = {0x00, 0x01, 0x02, 0x03};
@@ -143,7 +143,7 @@ static char * test_big_sum_carry() {
     BigInt expected = {0xff, 0x00, 0x02, 0x03, 0x01};
     big_sum(res, a, b);
    //big_print(res);
-    mu_assert("error, res != UINT64_MAX * 2", big_equal(res,expected));
+    mu_assert("Erro: res != 0x00010203", big_equal(res,expected));
     return 0;
 }
 
@@ -154,31 +154,94 @@ static char * test_big_sum_zero() {
     BigInt b = {0};
     BigInt res = {0};
     big_sum(res, a, b);
-    mu_assert("error, res != 0", res[0] == 0 && res[1] == 0);
+    mu_assert("Erro: res != 0", res[0] == 0 && res[1] == 0);
     return 0;
 }
-//ao passar a para big_sub esta com o valor errado (ffff) inves de (02)
-static char * test_big_sub_case1() {
-    // BigInt a = {0x00, 0x00, 0x00, 0x01};
-    // BigInt b = {0x00, 0x00, 0x00, 0x02};
+
+
+static char * test_big_sub_b_negativo() {
+    // Testa se a subtração de dois bigint, sendo o primeiro positivo e o segundo negativo resulta em uma soma de resultado 6
     BigInt a,b;
     BigInt expected_res = {0x06};
     BigInt res;
+
     big_val(a,2);
-    puts("big_val 2");
-    big_print(a);
     big_val(b,-4);
-    puts("big_val -4");
-    big_print(b);
-    //puts("expected");
-    // big_print(expected_res);
-    // big_print(res);
+
     puts("start big_sub");
     big_sub(res, a, b);
     big_print(res);
-    mu_assert("error, test_big_sub_case1", big_equal(expected_res, res));
+
+    mu_assert("Erro: test_big_sub_b_negativo", big_equal(expected_res, res));
+
     return 0;
 }
+
+static char * test_big_sub_padrao(){
+    // Testa a funcao big_sub com uma subtracao normal com resultado 2
+    BigInt a, b, res;
+    BigInt expected_res = {0x02};
+
+    big_val(a, 4);
+    big_val(b, 2);
+
+    big_sub(res, a, b);
+    
+    mu_assert("Erro: test_big_sub_case2", big_equal(expected_res, res));
+    return 0;
+}
+
+static char * test_big_sub_zero(){
+    // Testa a funcao big_sub com uma subtracao com os valores 0 
+    BigInt a, b, res;
+    BigInt expected_res = {0x00};
+
+    big_val(a, 0);
+    big_val(b, 0);
+
+    big_sub(res, a, b);
+    
+    mu_assert("Erro: test_big_sub_zero", big_equal(expected_res, res));
+    return 0;
+}
+
+// Test case 1: Multiplication of two positive numbers
+void test_big_mul_positive_numbers() {
+    BigInt res = {0};
+    BigInt a = {0x12345678, 0x9ABCDEF0};
+    BigInt b = {0x01010101, 0x01010101};
+    BigInt expected_res = {0x1E1E1E18, 0xE4E4E4E4, 0x01234567, 0x89ABCDEF};
+    big_mul(res, a, b);
+    mu_assert("Error: Test case 1 - big_mul() produced incorrect result.", big_equal(res,expected_res));
+    return 0;
+}
+
+void test_big_mul_positive_and_negative_numbers() {
+    BigInt res = {0};
+    // BigInt a = {0x12345678, 0x9ABCDEF0};
+    // BigInt b = {0xFFFFFFFF, 0xFFFFFFFF};
+    BigInt a,b;
+    big_val(a,16909060);
+    big_val(b,-99);
+    BigInt expected_res;
+    big_val(expected_res,-33818120);
+    big_mul(res, a, b);
+    mu_assert("Error: Test case 2 - big_mul() produced incorrect result.", big_equal(res,expected_res));
+    return 0;
+}
+
+// Alguns casos de teste para a função big_shl podem incluir:
+
+// Deslocamento de 0 bits: neste caso, a função deve retornar o mesmo valor de entrada.
+
+// Deslocamento de 1 bit: neste caso, a função deve deslocar todos os bits de a uma posição para a esquerda, inserindo um 0 no bit menos significativo.
+
+// Deslocamento de 127 bits: neste caso, a função deve mover todos os bits de a para a posição mais significativa em res.
+
+// Valores negativos de n: neste caso, a função pode retornar um valor indeterminado ou lançar um erro.
+
+// Valores de entrada inválidos: por exemplo, se os ponteiros de entrada para a função apontarem para áreas de memória inválidas, a função deve lançar um erro
+
 static char * all_tests() {
     mu_run_test(test_big_val_0);
     mu_run_test(test_big_val_1);
@@ -189,8 +252,10 @@ static char * all_tests() {
     mu_run_test(test_big_comp2_zero);
     mu_run_test(test_big_sum_zero);
     mu_run_test(test_big_sum_one);
-    mu_run_test(test_big_sum_carry);
-    mu_run_test(test_big_sub_case1);
+    mu_run_test(test_big_sum_vai_um);
+    mu_run_test(test_big_sub_b_negativo);
+    mu_run_test(test_big_sub_padrao);
+    mu_run_test(test_big_sub_zero);
     return 0;
 }
 
