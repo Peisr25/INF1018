@@ -65,182 +65,175 @@ static char * test_big_val_1() {
 }
 
 static char * test_big_val_0() {
+    BigInt res4;
+    BigInt esperado4 = {0};
     // Chama a função com o valor 0
-    big_val(res, 0);
-   
-
+    big_val(res4, 0);
     // Verifica se todos os bytes de res são zeros
-    for (int i = 0; i < NUM_BITS / 8; i++) {
-        mu_assert("Erro no teste de big_val(val 0): byte diferente do esperado", res[i] == 0x00);
-    }
+    mu_assert("Erro no teste de big_val(val 0): byte diferente do esperado", big_equal(res4,esperado4));
     return 0;
 }
 
 static char * test_big_comp2_pos() {
-    BigInt res = {0};
-    BigInt a = {0x04, 0x03, 0x02, 0x01, // 16909060 em decimal
-                0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00};
-    BigInt expected = {0xfc, 0xfc, 0xfd, 0xfe, // -16909060 em decimal
-                    0xff, 0xff, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff,
-                    0xff, 0xff, 0xff, 0xff};
-    big_comp2(res,a);
-    mu_assert("Erro: big_comp2 não funcionou com um valor positivo", big_equal(res, expected));
+    BigInt res5,a,esperado5;
+
+    big_val(a,16909060);
+    big_val(esperado5,-16909060);
+    big_comp2(res5,a);
+    mu_assert("Erro: big_comp2 não funcionou com um valor positivo", big_equal(res5, esperado5));
     return 0;
 }
 
 // Função de teste para verificar se big_comp2 funciona com um valor negativo
 static char * test_big_comp2_neg() {
-    BigInt res;
-    BigInt a = {0xfc, 0xfd, 0xfe, 0xff,   // -66052 em decimal
-                0xff, 0xff, 0xff, 0xff,
-                0xff, 0xff, 0xff, 0xff,
-                0xff, 0xff, 0xff, 0xff}; 
-    BigInt expected = {0x04, 0x02, 0x01, 0x00,
-                       0x00, 0x00, 0x00, 0x00,
-                       0x00, 0x00, 0x00, 0x00,
-                       0x00, 0x00, 0x00, 0x00}; 
-    big_comp2(res, a);
-    mu_assert("Erro: big_comp2 não funcionou com um valor negativo", big_equal(res, expected));
+    BigInt res6,esperado6,a2;
+
+    big_val(a2,-66052);
+    big_val(esperado6,66052);
+    big_comp2(res6, a2);
+    mu_assert("Erro: big_comp2 não funcionou com um valor negativo", big_equal(res6, esperado6));
     return 0;
 }
 
 static char * test_big_comp2_zero() {
-    BigInt res;
-    BigInt a = {0x00, 0x00, 0x00, 0x00}; // zero em decimal
-    BigInt expected = {0x00, 0x00, 0x00, 0x00}; // zero em decimal
-    big_comp2(res, a);
-    mu_assert("Erro: big_comp2 não funcionou com zero", big_equal(res, expected));
+    BigInt res7;
+    BigInt a3 = {0}; // zero em decimal
+    BigInt esperado7 = {0}; // zero em decimal
+    big_comp2(res7, a3);
+    mu_assert("Erro: big_comp2 não funcionou com zero", big_equal(res7, esperado7));
     return 0;
 }
 
-static char * test_big_sum_one() {
+static char * test_big_sum_um() {
     // Testa se a soma de dois bigint um resulta em dois
-    BigInt a = {1};
-    BigInt b = {1};
-    BigInt res = {0};
-    big_sum(res, a, b);
-    //puts("res: sum one");
-    //big_print(res);
-    mu_assert("Erro: res != 2", res[0] == 2 && res[1] == 0);
+    BigInt a4 = {1};
+    BigInt b4 = {1};
+    BigInt res8 = {0};
+    BigInt esperado8 ={0x02};
+    big_sum(res8, a4, b4);
+
+    mu_assert("Erro: big_sum 1+1 != 2", big_equal(res8,esperado8));
     return 0;
 }
 static char * test_big_sum_vai_um() {
     // Testa se a soma de dois bigint com overflow resulta no valor correto
-    BigInt a = {0xff, 0xff, 0xff, 0xff};
-    BigInt b = {0x00, 0x01, 0x02, 0x03};
-    BigInt res = {0};
-    BigInt expected = {0xff, 0x00, 0x02, 0x03, 0x01};
-    big_sum(res, a, b);
-   //big_print(res);
-    mu_assert("Erro: res != 0x00010203", big_equal(res,expected));
+    BigInt a5 = {0xff, 0xff, 0xff, 0xff};
+    BigInt b5 = {0x00, 0x01, 0x02, 0x03};
+    BigInt res9 = {0};
+    BigInt esperado9 = {0xff, 0x00, 0x02, 0x03, 0x01};
+    big_sum(res, a5, b5);
+
+    mu_assert("Erro: big_sum teste de overflow res != 0xff00020301", big_equal(res,esperado9));
     return 0;
 }
 
 
 static char * test_big_sum_zero() {
     // Testa se a soma de dois bigint zero resulta em zero
-    BigInt a = {0};
-    BigInt b = {0};
-    BigInt res = {0};
-    big_sum(res, a, b);
-    mu_assert("Erro: res != 0", res[0] == 0 && res[1] == 0);
+    BigInt a6 = {0};
+    BigInt b6 = {0};
+    BigInt res10 = {0};
+    BigInt esperado10 = {0};
+    big_sum(res10, a6, b6);
+
+    mu_assert("Erro: big_sum soma 0+0 res != 0", big_equal(res10,esperado10));
     return 0;
 }
 
 
 static char * test_big_sub_b_negativo() {
     // Testa se a subtração de dois bigint, sendo o primeiro positivo e o segundo negativo resulta em uma soma de resultado 6
-    BigInt a,b;
-    BigInt expected_res = {0x06};
-    BigInt res;
+    BigInt a7,b7;
+    BigInt esperado11 = {0x06};
+    BigInt res11;
 
-    big_val(a,2);
-    big_val(b,-4);
+    big_val(a7,2);
+    big_val(b7,-4);
 
-    puts("start big_sub");
-    big_sub(res, a, b);
-    big_print(res);
+    big_sub(res11, a7, b7);
+    big_print(res11);
 
-    mu_assert("Erro: test_big_sub_b_negativo", big_equal(expected_res, res));
+    mu_assert("Erro: test_big_sub_b_negativo res != 6", big_equal(res11, esperado11));
 
     return 0;
 }
 
 static char * test_big_sub_padrao(){
     // Testa a funcao big_sub com uma subtracao normal com resultado 2
-    BigInt a, b, res;
-    BigInt expected_res = {0x02};
+    BigInt a8, b8, res12;
+    BigInt esperado12 = {0x02};
 
-    big_val(a, 4);
-    big_val(b, 2);
+    big_val(a8, 4);
+    big_val(b8, 2);
 
-    big_sub(res, a, b);
+    big_sub(res12, a8, b8);
     
-    mu_assert("Erro: test_big_sub_case2", big_equal(expected_res, res));
+    mu_assert("Erro: test_big_sub_padrao res != 2", big_equal(esperado12, res12));
     return 0;
 }
 
 static char * test_big_sub_zero(){
     // Testa a funcao big_sub com uma subtracao com os valores 0 
-    BigInt a, b, res;
-    BigInt expected_res = {0x00};
+    BigInt a9, b9, res13;
+    BigInt esperado13= {0};
 
-    big_val(a, 0);
-    big_val(b, 0);
+    big_val(a9, 0);
+    big_val(b9, 0);
 
-    big_sub(res, a, b);
+    big_sub(res13, a9, b9);
     
-    mu_assert("Erro: test_big_sub_zero", big_equal(expected_res, res));
+    mu_assert("Erro: test_big_sub_zero res != 0", big_equal(esperado13, res13));
     return 0;
 }
 
 // Test case 1: Multiplication of two positive numbers
-static char * test_big_mul_positive_numbers() {
-    BigInt res,a,b,esperado;
-    big_val(a,16909060);
-    big_val(b,16909060);
-    big_val(esperado,285916310083600);
-    big_mul(res, a, b);
-    puts("bigprint resultado:");
-    big_print(res);
-    puts("bigprint esperado:");
-    big_print(esperado);
-    mu_assert("Error: Test case 1 - big_mul() produced incorrect result.", big_equal(res,esperado));
+static char * test_big_mul_numeros_positivos() {
+    BigInt res14,a10,b10,esperado14;
+    big_val(a10,16909060);
+    big_val(b10,16909060);
+    big_val(esperado14,285916310083600);
+    big_mul(res14, a10, b10);
+
+    mu_assert("Erro: big_mul  res != 285916310083600", big_equal(res14,esperado14));
     return 0;
 }
 
 static char * test_big_mul_positivo_e_negativo() {
-    BigInt res,a,b,expected_res;
-    big_val(a,16909060);
-    big_val(b,-99);
-    big_val(expected_res,-1673996940);
-    big_mul(res, a, b);
-    big_print(expected_res);
-    mu_assert("Erro: valores positivo e negativo - big_mul() retornou resultado incorreto", big_equal(res,expected_res));
+    BigInt res15,a11,b11,esperado15;
+
+    big_val(a11,16909060);
+    big_val(b11,-99);
+
+    big_val(esperado15,-1673996940);
+
+    big_mul(res15, a11, b11);
+    puts("esperado");
+    big_print(esperado15);
+    puts("res");
+    big_print(res15);
+    mu_assert("Erro: valores positivo e negativo - big_mul() retornou resultado incorreto", big_equal(res15,esperado15));
     return 0;
 }
 static char * test_big_mul_zero(){
-    BigInt res,a,b;
-    big_val(a,0);
-    big_val(b,5);
-    BigInt esperado = {0};
-    big_mul(res,a,b);
+    BigInt res16,a12,b12;
+    big_val(a12,0);
+    big_val(b12,5);
+    BigInt esperado16 = {0};
+    big_mul(res16,a12,b12);
 
-    mu_assert("Erro: big_mul() com resultado incorreto", big_equal(res,esperado));
+    mu_assert("Erro: big_mul() zero com resultado incorreto", big_equal(res16,esperado16));
     return 0;
 }
 static char * test_big_shl_deslocamento_zero(){
-    BigInt a,b,res;
-    BigInt esperado;
-    big_val(esperado,16909060);
-    big_val(a,16909060);
-    big_shl(res,a,0);
-    big_print(res);
+    BigInt a13,b13,res17,esperado17;
 
-    mu_assert("Erro: deslocamento zero, big_shl() com resultado incorreto", big_equal(res,esperado));
+    big_val(esperado17,16909060);
+    big_val(a13,16909060);
+
+    big_shl(res17,a13,0);
+    big_print(res17);
+
+    mu_assert("Erro: deslocamento zero, big_shl() com resultado incorreto", big_equal(res17,esperado17));
     return 0;
 }
 // Alguns casos de teste para a função big_shl podem incluir:
@@ -264,15 +257,15 @@ static char * all_tests() {
     mu_run_test(test_big_comp2_neg);
     mu_run_test(test_big_comp2_zero);
     mu_run_test(test_big_sum_zero);
-    mu_run_test(test_big_sum_one);
+    mu_run_test(test_big_sum_um);
     mu_run_test(test_big_sum_vai_um);
     mu_run_test(test_big_sub_b_negativo);
     mu_run_test(test_big_sub_padrao);
     mu_run_test(test_big_sub_zero);
     mu_run_test(test_big_mul_zero);
-    // mu_run_test(test_big_shl_deslocamento_zero);
     mu_run_test(test_big_mul_positivo_e_negativo);
-    mu_run_test(test_big_mul_positive_numbers);
+    mu_run_test(test_big_mul_numeros_positivos);
+    mu_run_test(test_big_shl_deslocamento_zero);
     return 0;
 }
 

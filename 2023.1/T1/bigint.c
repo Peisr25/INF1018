@@ -58,37 +58,6 @@ void big_val(BigInt res, long val)
     }
 }
 
-// void big_val(BigInt res, long val)
-// {
-//     int i,j;
-//     unsigned char *p = (unsigned char *)res;
-//     unsigned char *q;
-//     int eh_negativo = (val >> 63) == -1;
-//     // grava os primeiros 8 bytes do long nos 8 primeiros do BigInt
-//     for (i = 0; i < 8; i++)
-//     {
-//         printf("val: %x\n",val);
-//         *p = (unsigned char)val;
-//         val >>= 8;
-//         printf("val pos >> 8: %x\n",val);
-//         //res[i]=*p;
-//         p++;
-//         printf("*p: %x\n", *p);
-//     }
-//     puts("big_print res");
-//     big_print(res);
-//     q = p;
-//     for (i = 0; i < 2; i++)
-//     {
-//         if (eh_negativo)
-//             *q++ = 0xFF;
-//         else
-//             *q++ = 0x00;
-//     }
-//     puts("big_print res");
-//     big_print(res);
-// }
-
 /* Operações Aritméticas */
 
 /* res = -a */
@@ -213,6 +182,100 @@ void big_sub(BigInt res, BigInt a, BigInt b, BigInt c)
 //         memset(aux, 0, sizeof(aux));
 //     }
 // }
+// void big_mul(BigInt res, BigInt a, BigInt b)
+// {
+//     BigInt aux = {0};
+//     int i, j;
+//     unsigned char *pont_a = (unsigned char *)a;
+//     unsigned char *pont_b = (unsigned char *)b;
+//     unsigned char *pont_res = (unsigned char *)res;
+//     unsigned char vai_um = 0;
+//     puts("bigPrint a:");
+//     big_print(a);
+//     puts("bigPrint b:");
+//     big_print(b);
+//     for (i = 0; i < NUM_BITS / 8; i++)
+//     {
+//         for (j = 0; j < NUM_BITS / 8; j++)
+//         {
+//             printf("byteA: %hhx\n", *pont_a);
+//             printf("byteB: %hhx\n", *pont_b);
+//             unsigned short mult = ((*pont_a) * (*pont_b)) + vai_um;
+//             printf("mult: %x\n", mult);
+
+//             vai_um = mult >> 8;
+//             aux[j + i] += mult;
+//             if (aux[j + i] < mult) // houve overflow na soma
+//             {
+//                 vai_um++;
+//             }
+//             pont_b++;
+//         }
+//         if (vai_um)
+//         {
+//             aux[j + i] += vai_um;
+//             vai_um = 0;
+//         }
+//         pont_b -= NUM_BITS / 8;
+//         pont_a++;
+//         big_sum(res, res, aux);
+//         memset(aux, 0, sizeof(aux));
+//     }
+// }
+// void big_mul(BigInt res, BigInt a, BigInt b)
+// {
+//     BigInt aux = {0};
+//     int i, j;
+//     unsigned char *pont_a = (unsigned char *)a;
+//     unsigned char *pont_b = (unsigned char *)b;
+//     unsigned char *pont_res = (unsigned char *)res;
+//     unsigned char vai_um = 0;
+
+//     // check if either a or b is negative
+//     int a_neg = a[NUM_BITS / 8 - 1] & 0x80;
+//     int b_neg = b[NUM_BITS / 8 - 1] & 0x80;
+
+//     // if either a or b is negative, convert to their 2's complement representation
+//     if (a_neg) {
+//         big_comp2(a, a);
+//     }
+//     if (b_neg) {
+//         big_comp2(b, b);
+//     }
+
+//     for (i = 0; i < NUM_BITS / 8; i++)
+//     {
+//         for (j = 0; j < NUM_BITS / 8; j++)
+//         {
+//             unsigned short mult = ((*pont_a) * (*pont_b)) + vai_um;
+//             vai_um = mult >> 8;
+//             aux[j + i] += mult;
+//             if (aux[j + i] < mult) // houve overflow na soma
+//             {
+//                 vai_um++;
+//             }
+//             pont_b++;
+//         }
+//         if (vai_um)
+//         {
+//             aux[j + i] += vai_um;
+//             vai_um = 0;
+//         }
+//         pont_b -= NUM_BITS / 8;
+//         pont_a++;
+//     }
+
+//     // if either a or b was negative, convert the result to its 2's complement representation
+//     if (a_neg != b_neg) {
+//         big_comp2(res, aux);
+//     } else {
+//         memcpy(res, aux, sizeof(BigInt));
+//     }
+
+//     // clean up
+//     memset(aux, 0, sizeof(aux));
+// }
+
 void big_mul(BigInt res, BigInt a, BigInt b)
 {
     BigInt aux = {0};
@@ -221,38 +284,45 @@ void big_mul(BigInt res, BigInt a, BigInt b)
     unsigned char *pont_b = (unsigned char *)b;
     unsigned char *pont_res = (unsigned char *)res;
     unsigned char vai_um = 0;
-    puts("bigPrint a:");
-    big_print(a);
-    puts("bigPrint b:");
-    big_print(b);
+
+    // check if either a or b is negative
+    int a_neg = a[NUM_BITS / 8 - 1] & 0x80;
+    int b_neg = b[NUM_BITS / 8 - 1] & 0x80;
+
+    // if either a or b is negative, convert to their 2's complement representation
+    if (a_neg) {
+        big_comp2(a, a);
+    }
+    if (b_neg) {
+        big_comp2(b, b);
+    }
+
     for (i = 0; i < NUM_BITS / 8; i++)
     {
         for (j = 0; j < NUM_BITS / 8; j++)
         {
-            printf("byteA: %hhx\n", *pont_a);
-            printf("byteB: %hhx\n", *pont_b);
-            unsigned short mult = ((*pont_a) * (*pont_b)) + vai_um;
-            printf("mult: %x\n", mult);
-
+            unsigned short mult = ((*pont_a) * (*pont_b)) + aux[j + i] + vai_um;
             vai_um = mult >> 8;
-            aux[j + i] += mult;
-            if (aux[j + i] < mult) // houve overflow na soma
-            {
-                vai_um++;
-            }
+            aux[j + i] = mult;
             pont_b++;
         }
-        if (vai_um)
-        {
-            aux[j + i] += vai_um;
-            vai_um = 0;
-        }
+        aux[j + i] += vai_um;
+        vai_um = 0;
         pont_b -= NUM_BITS / 8;
         pont_a++;
-        big_sum(res, res, aux);
-        memset(aux, 0, sizeof(aux));
     }
+
+    // if either a or b was negative, convert the result to its 2's complement representation
+    if (a_neg != b_neg) {
+        big_comp2(res, aux);
+    } else {
+        memcpy(res, aux, sizeof(BigInt));
+    }
+
+    // clean up
+    memset(aux, 0, sizeof(aux));
 }
+
 
 /* Operações de Deslocamento */
 
@@ -296,43 +366,54 @@ void big_sar(BigInt res, BigInt a, int n);
 
 // int main(void)
 // {
-//     BigInt num, res1, res2, a, b;
-//     // BigInt a = {0x00, 0x00, 0x00, 0x01};
-//     // BigInt b = {0x00, 0x00, 0x00, 0x02};
-//     BigInt num2 = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-//     BigInt res;
-//     // BigInt num2;
-//     BigInt num3;
-//     // dump_128bits(num, 16);
-//     long x = 16909060;
-//     long y = 16909060;
+//     BigInt res15,a11,b11,esperado15;
 
-//     // BigInt res = {0};
-//     //  BigInt a = {0x12345678, 0x9ABCDEF0};
-//     //  BigInt b = {0xFFFFFFFF, 0xFFFFFFFF};
-//     // BigInt a,b;
-//     //  big_val(a,-1);
-//     //  big_print(a);
-//     big_val(a, 16909060);
-//     big_val(b, 16909060);
-//     big_mul(res, a, b);
-//     big_print(res);
-//     // big_val(b,99);
-//     // BigInt expected_res;
-//     // big_val(expected_res,-33818120);
+//     big_val(a11,16909060);
+//     big_val(b11,-99);
+
+//     big_val(esperado15,-1673996940);
+
+//     big_mul(res15, a11, b11);
+//     puts("res");
+//     big_print(res15);
+//     big_print(esperado15);
+//     // BigInt num, res1, res2, a, b;
+//     // // BigInt a = {0x00, 0x00, 0x00, 0x01};
+//     // // BigInt b = {0x00, 0x00, 0x00, 0x02};
+//     // BigInt num2 = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+//     // BigInt res;
+//     // // BigInt num2;
+//     // BigInt num3;
+//     // // dump_128bits(num, 16);
+//     // long x = 16909060;
+//     // long y = 16909060;
+
+//     // // BigInt res = {0};
+//     // //  BigInt a = {0x12345678, 0x9ABCDEF0};
+//     // //  BigInt b = {0xFFFFFFFF, 0xFFFFFFFF};
+//     // // BigInt a,b;
+//     // //  big_val(a,-1);
+//     // //  big_print(a);
+//     // big_val(a, 16909060);
+//     // big_val(b, 16909060);
 //     // big_mul(res, a, b);
 //     // big_print(res);
-//     // puts("expected");
-//     // big_print(expected_res);
+//     // // big_val(b,99);
+//     // // BigInt expected_res;
+//     // // big_val(expected_res,-33818120);
+//     // // big_mul(res, a, b);
+//     // // big_print(res);
+//     // // puts("expected");
+//     // // big_print(expected_res);
 
-//     // big_val(a,x);
-//     // puts("big_val 4");
-//     // big_print(a);
+//     // // big_val(a,x);
+//     // // puts("big_val 4");
+//     // // big_print(a);
 
-//     // big_val(b,y);
-//     // puts("big_val 2");
-//     // big_print(b);
-//     // big_mul(res,a,b);
+//     // // big_val(b,y);
+//     // // puts("big_val 2");
+//     // // big_print(b);
+//     // // big_mul(res,a,b);
 
 
 //     return 0;
