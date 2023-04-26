@@ -3,22 +3,22 @@
 #define NUM_BITS 128
 typedef unsigned char BigInt[NUM_BITS / 8];
 
-void big_print(BigInt a)
-{
-    char str[NUM_BITS / 8 * 2 + 1]; // aloca espaço para a string
-    int i;
-    int eh_negativo = (a[NUM_BITS / 8 - 1] & 0x80) == 0x80; // verifica se o bit mais significativo é 1
-    if (eh_negativo)
-    {
-        printf("-"); // imprime o sinal de menos
-    }
-    for (i = 0; i < NUM_BITS / 8; i++)
-    {
-        sprintf(str, "%02X ", a[i]); // converte cada byte em uma string de dois dígitos hexadecimais
-        printf("%s", str);          // imprime a string
-    }
-    printf("\n"); // imprime uma quebra de linha
-}
+// void big_print(BigInt a)
+// {
+//     char str[NUM_BITS / 8 * 2 + 1]; // aloca espaço para a string
+//     int i;
+//     int eh_negativo = (a[NUM_BITS / 8 - 1] & 0x80) == 0x80; // verifica se o bit mais significativo é 1
+//     if (eh_negativo)
+//     {
+//         printf("-"); // imprime o sinal de menos
+//     }
+//     for (i = 0; i < NUM_BITS / 8; i++)
+//     {
+//         sprintf(str, "%02X ", a[i]); // converte cada byte em uma string de dois dígitos hexadecimais
+//         printf("%s", str);           // imprime a string
+//     }
+//     printf("\n"); // imprime uma quebra de linha
+// }
 
 void dump_128bits(void *p, int n)
 {
@@ -33,28 +33,30 @@ void dump_128bits(void *p, int n)
 }
 
 /* Atribuição (com extensão) */
-void big_val(BigInt res, long val) {
+void big_val(BigInt res, long val)
+{
+    
+    unsigned char val_bytes[8];
+    int eh_negativo = (val >> 63) == -1;
 
-  unsigned char val_bytes[8];
-  int eh_negativo = (val >> 63) == -1;
+    for (int i = 0; i < 8; i++)
+    {
+        val_bytes[i] = (val >> (i * 8)) & 0xFF;
+    }
 
-  for (int i = 0; i < 8; i++) {
-    val_bytes[i] = (val >> (i * 8)) & 0xFF;
-  }
+    for (int i = 0; i < 8; i++)
+    {
+        res[i] = val_bytes[i];
+    }
 
-  for (int i = 0; i < 8; i++) {
-    res[i] = val_bytes[i];
-  }
-
-  for (int i = 8; i < NUM_BITS/8; i++)
+    for (int i = 8; i < NUM_BITS / 8; i++)
     {
         if (eh_negativo)
             res[i] = 0xFF;
         else
             res[i] = 0x00;
     }
-  }
-
+}
 
 // void big_val(BigInt res, long val)
 // {
@@ -91,7 +93,8 @@ void big_val(BigInt res, long val) {
 
 /* res = -a */
 
-void big_comp2(BigInt res, BigInt a){
+void big_comp2(BigInt res, BigInt a)
+{
     BigInt aux = {0};
     int i;
     // inicializa os ponteiros p e q para o início dos arrays a e aux
@@ -102,9 +105,9 @@ void big_comp2(BigInt res, BigInt a){
     // inverte os bits e salva na variável BigInt aux
     for (i = 0; i < NUM_BITS / 8; i++)
     {
-        printf("*p antes neg: %x\n",*p);
+        printf("*p antes neg: %x\n", *p);
         *q = ~(*p);
-        printf("neg *p: %x\n",*q);
+        printf("neg *p: %x\n", *q);
         p++;
         q++;
     }
@@ -116,7 +119,6 @@ void big_comp2(BigInt res, BigInt a){
     big_sum(res, aux, um);
     puts("res pos big_sum comp2");
     big_print(res);
-
 }
 
 /* res = a + b */
@@ -140,11 +142,13 @@ void big_sum(BigInt res, BigInt a, BigInt b)
         // printf("byteB: %hhx\n", *pont_b);
         soma = *pont_a + *pont_b + vai_um;
         // printf("soma: %x\n",soma);
-        if (soma & 0x100){
+        if (soma & 0x100)
+        {
             vai_um = 1;
             // puts("vaium");
         }
-        else{
+        else
+        {
             vai_um = 0;
             // puts("nao vaium");
         }
@@ -152,51 +156,101 @@ void big_sum(BigInt res, BigInt a, BigInt b)
         // printf("res: %x\n",*pont_res);
         pont_a++;
         pont_b++;
-        pont_res++; 
+        pont_res++;
     }
     puts("big_print res pos");
     big_print(res);
 }
 
 /* res = a - b */
-void big_sub(BigInt res, BigInt a, BigInt b, BigInt c){
-    BigInt aux;
+void big_sub(BigInt res, BigInt a, BigInt b, BigInt c)
+{
+    BigInt aux = {0};
     big_comp2(aux, b);
     puts("DENTRO BIG-SUB print aux pos comp2 de b");
     big_print(aux);
     puts("bigprint a DENTRO BIGSUB");
     big_print(a);
-    //ao passar a para big_sub esta com o valor errado (ffff) inves de (02)
+    // ao passar a para big_sub esta com o valor errado (ffff) inves de (02)
     puts("apos comp2 dentro de big_sub");
     big_sum(res, a, aux);
 }
 
-
 /* res = a * b */
-void big_mul(BigInt res, BigInt a, BigInt b){
+// void big_mul(BigInt res, BigInt a, BigInt b)
+// {
+//     BigInt aux = {0};
+//     int i, j;
+//     unsigned char *pont_a = (unsigned char *)a;
+//     unsigned char *pont_b = (unsigned char *)b;
+//     unsigned char *pont_res = (unsigned char *)res;
+//     puts("bigPrint a:");
+//     big_print(a);
+//     puts("bigPrint b:");
+//     big_print(b);
+//     for (i = 0; i < NUM_BITS / 8; i++)
+//     {
+
+//         unsigned char vai_um = 0;
+//         for (j = 0; j < NUM_BITS / 8; j++)
+//         {
+//             printf("byteA: %hhx\n", *pont_a);
+//             printf("byteB: %hhx\n", *pont_b);
+//             unsigned short mult = ((*pont_a) * (*pont_b)) + vai_um;
+
+//             printf("mult: %x\n", mult);
+//             vai_um = mult >> 8;
+//             aux[j + i] = mult;
+//             pont_b++;
+//         }
+//         if (vai_um)
+//         {
+//             aux[j + i] = vai_um;
+//         }
+//         pont_b -= NUM_BITS / 8;
+//         pont_a++;
+//         big_sum(res, res, aux);
+//         memset(aux, 0, sizeof(aux));
+//     }
+// }
+void big_mul(BigInt res, BigInt a, BigInt b)
+{
     BigInt aux = {0};
-    int i,j;
+    int i, j;
     unsigned char *pont_a = (unsigned char *)a;
     unsigned char *pont_b = (unsigned char *)b;
     unsigned char *pont_res = (unsigned char *)res;
-
-    for (i = 0; i < NUM_BITS / 8; i++){
-
-        unsigned char vai_um = 0;
-        for (j = 0; j < NUM_BITS / 8; j++){
+    unsigned char vai_um = 0;
+    puts("bigPrint a:");
+    big_print(a);
+    puts("bigPrint b:");
+    big_print(b);
+    for (i = 0; i < NUM_BITS / 8; i++)
+    {
+        for (j = 0; j < NUM_BITS / 8; j++)
+        {
+            printf("byteA: %hhx\n", *pont_a);
+            printf("byteB: %hhx\n", *pont_b);
             unsigned short mult = ((*pont_a) * (*pont_b)) + vai_um;
-            printf("mult: %x\n",mult);
+            printf("mult: %x\n", mult);
+
             vai_um = mult >> 8;
-            aux[j + i] = mult;
+            aux[j + i] += mult;
+            if (aux[j + i] < mult) // houve overflow na soma
+            {
+                vai_um++;
+            }
             pont_b++;
         }
-        if(vai_um){
-            aux[j+i] = vai_um;
+        if (vai_um)
+        {
+            aux[j + i] += vai_um;
+            vai_um = 0;
         }
-        pont_b -= NUM_BITS/8;
+        pont_b -= NUM_BITS / 8;
         pont_a++;
-        big_sum(res,res,aux);
-        memset(aux,0,sizeof(aux));
+        big_sum(res, res, aux);
+        memset(aux, 0, sizeof(aux));
     }
 }
 
@@ -210,13 +264,13 @@ void big_shl(BigInt res, BigInt a, int n)
     unsigned char *pont_res = (unsigned char *)res;
     unsigned char vai_um = 0;
     unsigned short soma;
-    int bytes_shift = n/8; //quantidade de bytes que serão deslocados
-    int bits_shift = n%8; //quantidade de bits que serão deslocados dentro do byte
+    int bytes_shift = n / 8; // quantidade de bytes que serão deslocados
+    int bits_shift = n % 8;  // quantidade de bits que serão deslocados dentro do byte
 
-    //copia a para res para não modificar o valor original
+    // copia a para res para não modificar o valor original
     memcpy(res, a, NUM_BITS / 8);
 
-    //realiza o deslocamento de n bits para a esquerda
+    // realiza o deslocamento de n bits para a esquerda
     for (i = NUM_BITS / 8 - 1; i >= bytes_shift; i--)
     {
         soma = (*pont_a << bits_shift) + vai_um;
@@ -226,7 +280,7 @@ void big_shl(BigInt res, BigInt a, int n)
         pont_res++;
     }
 
-    //preenche com zeros os bytes que foram deslocados
+    // preenche com zeros os bytes que foram deslocados
     for (i = 0; i < bytes_shift; i++)
     {
         *pont_res = 0;
@@ -234,47 +288,52 @@ void big_shl(BigInt res, BigInt a, int n)
     }
 }
 
-
 /* res = a >> n (lógico)*/
 void big_shr(BigInt res, BigInt a, int n);
 
 /* res = a >> n (aritmético)*/
 void big_sar(BigInt res, BigInt a, int n);
 
-int main(void)
-{
-    BigInt num, res1, res2,a,b;
-    // BigInt a = {0x00, 0x00, 0x00, 0x01};
-    // BigInt b = {0x00, 0x00, 0x00, 0x02};
-    BigInt num2 = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    BigInt res;
-    //BigInt num2;
-    BigInt num3;
-    // dump_128bits(num, 16);
-    long x = 16909060;
-    long y = 16909060;
+// int main(void)
+// {
+//     BigInt num, res1, res2, a, b;
+//     // BigInt a = {0x00, 0x00, 0x00, 0x01};
+//     // BigInt b = {0x00, 0x00, 0x00, 0x02};
+//     BigInt num2 = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+//     BigInt res;
+//     // BigInt num2;
+//     BigInt num3;
+//     // dump_128bits(num, 16);
+//     long x = 16909060;
+//     long y = 16909060;
 
-    //BigInt res = {0};
-    // BigInt a = {0x12345678, 0x9ABCDEF0};
-    // BigInt b = {0xFFFFFFFF, 0xFFFFFFFF};
-    //BigInt a,b;
-    big_val(a,16909060);
-    big_val(b,99);
-    BigInt expected_res;
-    big_val(expected_res,-33818120);
-    big_mul(res, a, b);
-    big_print(res);
-    puts("expected");
-    big_print(expected_res);
+//     // BigInt res = {0};
+//     //  BigInt a = {0x12345678, 0x9ABCDEF0};
+//     //  BigInt b = {0xFFFFFFFF, 0xFFFFFFFF};
+//     // BigInt a,b;
+//     //  big_val(a,-1);
+//     //  big_print(a);
+//     big_val(a, 16909060);
+//     big_val(b, 16909060);
+//     big_mul(res, a, b);
+//     big_print(res);
+//     // big_val(b,99);
+//     // BigInt expected_res;
+//     // big_val(expected_res,-33818120);
+//     // big_mul(res, a, b);
+//     // big_print(res);
+//     // puts("expected");
+//     // big_print(expected_res);
 
-    // big_val(a,x);
-    // puts("big_val 4");
-    // big_print(a);
+//     // big_val(a,x);
+//     // puts("big_val 4");
+//     // big_print(a);
 
-    // big_val(b,y);
-    // puts("big_val 2");
-    // big_print(b);
-    // big_mul(res,a,b);
+//     // big_val(b,y);
+//     // puts("big_val 2");
+//     // big_print(b);
+//     // big_mul(res,a,b);
 
-    return 0;
-}
+
+//     return 0;
+// }

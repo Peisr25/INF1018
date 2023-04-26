@@ -34,41 +34,33 @@ void big_print(BigInt a) {
 static char * test_big_val_pos() {
     // Chama a função com um valor positivo
     big_val(res, 1234567890);
-    // Verifica se os primeiros 8 bytes de res correspondem ao valor em binário
-    mu_assert("Erro no teste de big_val (valor inteiro): byte diferente do esperado", res[0] == 0xd2 && res[1] == 0x02 && res[2] == 0x96 && res[3] == 0x49 && res[4] == 0x00 && res[5] == 0x00 && res[6] == 0x00 && res[7] == 0x00);
-    // Verifica se os últimos 8 bytes de res são zeros
-    for (int i = 8; i < NUM_BITS / 8; i++) {
-        mu_assert("Erro no teste de big_val(valor inteiro for): byte diferente do esperado", res[i] == 0x00);
-    }
+    BigInt esperado = {0xd2,0x02,0x96,0x49};
+
+    // Verifica se res correspondem ao valor esperado
+    mu_assert("Erro no teste de big_val (valor inteiro): byte diferente do esperado", big_equal(res,esperado));
     return 0;
 }
 
 static char * test_big_val_neg() {
     // Chama a função com um valor negativo
-    big_val(res, -123456789);
+    BigInt res2;
+    BigInt esperado2 = {0xeb,0x32,0xa4,0xf8,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};
+    big_val(res2, -123456789);
     
-
-    // Verifica se os primeiros 8 bytes de res correspondem ao valor em binário
-    mu_assert("Erro no teste de big_val (valor negativo): byte diferente do esperado", res[0] == 0xeb && res[1] == 0x32 && res[2] == 0xa4 && res[3] == 0xf8 && res[4] == 0xff && res[5] == 0xff && res[6] == 0xff && res[7] == 0xff);
-    // Verifica se os últimos 8 bytes de res são uns
-    for (int i = 8; i < NUM_BITS / 8; i++) {
-        mu_assert("Erro no teste de big_val(valor negativo for): byte diferente do esperado", res[i] == 0xff);
-    }
+    mu_assert("Erro no teste de big_val (valor negativo): byte diferente do esperado", big_equal(res2,esperado2));
 
     return 0;
 }
 
 static char * test_big_val_1() {
+    BigInt res3;
+    BigInt esperado3 = {0x01};
     // Chama a função com o valor 1
-    big_val(res, 1);
+    big_val(res3, 1);
     
 
     // Verifica se o primeiro byte de res é igual a 1
-    mu_assert("Erro no teste de big_val(val 1): byte diferente do esperado", res[0] == 0x01);
-    // Verifica se os bytes restantes de res são zeros
-    for (int i = 1; i < NUM_BITS / 8; i++) {
-        mu_assert("Erro no teste de big_val(val 1 for): byte diferente do esperado", res[i] == 0x00);
-    }
+    mu_assert("Erro no teste de big_val(val 1): byte diferente do esperado", big_equal(res3,esperado3));
     return 0;
 }
 
@@ -206,30 +198,51 @@ static char * test_big_sub_zero(){
 }
 
 // Test case 1: Multiplication of two positive numbers
-void test_big_mul_positive_numbers() {
-    BigInt res = {0};
-    BigInt a = {0x12345678, 0x9ABCDEF0};
-    BigInt b = {0x01010101, 0x01010101};
-    BigInt expected_res = {0x1E1E1E18, 0xE4E4E4E4, 0x01234567, 0x89ABCDEF};
+static char * test_big_mul_positive_numbers() {
+    BigInt res,a,b,esperado;
+    big_val(a,16909060);
+    big_val(b,16909060);
+    big_val(esperado,285916310083600);
     big_mul(res, a, b);
-    mu_assert("Error: Test case 1 - big_mul() produced incorrect result.", big_equal(res,expected_res));
+    puts("bigprint resultado:");
+    big_print(res);
+    puts("bigprint esperado:");
+    big_print(esperado);
+    mu_assert("Error: Test case 1 - big_mul() produced incorrect result.", big_equal(res,esperado));
     return 0;
 }
 
-void test_big_mul_positive_and_negative_numbers() {
-    BigInt res = {0};
-    // BigInt a = {0x12345678, 0x9ABCDEF0};
-    // BigInt b = {0xFFFFFFFF, 0xFFFFFFFF};
-    BigInt a,b;
+static char * test_big_mul_positivo_e_negativo() {
+    BigInt res,a,b,expected_res;
     big_val(a,16909060);
     big_val(b,-99);
-    BigInt expected_res;
-    big_val(expected_res,-33818120);
+    big_val(expected_res,-1673996940);
     big_mul(res, a, b);
-    mu_assert("Error: Test case 2 - big_mul() produced incorrect result.", big_equal(res,expected_res));
+    big_print(expected_res);
+    mu_assert("Erro: valores positivo e negativo - big_mul() retornou resultado incorreto", big_equal(res,expected_res));
     return 0;
 }
+static char * test_big_mul_zero(){
+    BigInt res,a,b;
+    big_val(a,0);
+    big_val(b,5);
+    BigInt esperado = {0};
+    big_mul(res,a,b);
 
+    mu_assert("Erro: big_mul() com resultado incorreto", big_equal(res,esperado));
+    return 0;
+}
+static char * test_big_shl_deslocamento_zero(){
+    BigInt a,b,res;
+    BigInt esperado;
+    big_val(esperado,16909060);
+    big_val(a,16909060);
+    big_shl(res,a,0);
+    big_print(res);
+
+    mu_assert("Erro: deslocamento zero, big_shl() com resultado incorreto", big_equal(res,esperado));
+    return 0;
+}
 // Alguns casos de teste para a função big_shl podem incluir:
 
 // Deslocamento de 0 bits: neste caso, a função deve retornar o mesmo valor de entrada.
@@ -256,11 +269,16 @@ static char * all_tests() {
     mu_run_test(test_big_sub_b_negativo);
     mu_run_test(test_big_sub_padrao);
     mu_run_test(test_big_sub_zero);
+    mu_run_test(test_big_mul_zero);
+    // mu_run_test(test_big_shl_deslocamento_zero);
+    mu_run_test(test_big_mul_positivo_e_negativo);
+    mu_run_test(test_big_mul_positive_numbers);
     return 0;
 }
 
 int main(int argc, char **argv) {
-    
+    BigInt a = {1};
+    big_print(a);
     char *result = all_tests();
     if (result != 0) {
         printf("%s\n", result);
