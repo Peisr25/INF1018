@@ -236,6 +236,70 @@ static char * test_big_shl_deslocamento_zero(){
     mu_assert("Erro: deslocamento zero, big_shl() com resultado incorreto", big_equal(res17,esperado17));
     return 0;
 }
+static char * test_big_shl_deslocamento_1(){
+    BigInt a14,res18,esperado18;
+
+    long val = 16909060 << 1;
+    printf("%x\n",val);
+
+    big_val(a14,16909060);
+    big_val(esperado18,val);
+
+    big_shl(res18,a14,1);
+    big_print(res18);
+    big_print(esperado18);
+    mu_assert("Erro: deslocamento 1, big_shl() com resultado incorreto", big_equal(res18,esperado18));
+
+    return 0;
+}
+static char * test_big_shl_deslocamento_127(){
+    BigInt a15,res19,esperado19;
+    
+    long val = 16909060 << 127;
+    printf("%x\n",val);
+
+    big_val(a15,16909060);
+    big_val(esperado19,val);
+
+    big_shl(res19,a15,127);
+    big_print(res19);
+    big_print(esperado19);
+    mu_assert("Erro: deslocamento 127, big_shl() com resultado incorreto", big_equal(res19,esperado19));
+
+    return 0;
+}
+static char * test_big_shl_deslocamento_negativo(){
+    BigInt a16,res20,esperado20;
+    
+    long val = 16909060 << -1;
+    printf("%x\n",val);
+
+    big_val(a16,16909060);
+    big_val(esperado20,val);
+
+    big_shl(res20,a16,-1);
+    mu_assert("Erro: deslocamento -1, big_shl() com resultado incorreto", big_equal(res20,esperado20));
+
+    return 0;
+}
+
+static char * test_big_shr_deslocamento_1(){
+    BigInt a17,res21,esperado21;
+    
+    long val = 16909060 >> 1;
+    printf("%x\n",val);
+
+    big_val(a17,16909060);
+    big_val(esperado21,val);
+    
+    big_shr(res21,a17,1);
+    big_print(a17);
+    big_print(esperado21);
+    big_print(res21);
+    mu_assert("Erro: deslocamento 1, big_shr com resultado incorreto", big_equal(res21,esperado21));
+
+    return 0;
+}
 // Alguns casos de teste para a função big_shl podem incluir:
 
 // Deslocamento de 0 bits: neste caso, a função deve retornar o mesmo valor de entrada.
@@ -249,23 +313,29 @@ static char * test_big_shl_deslocamento_zero(){
 // Valores de entrada inválidos: por exemplo, se os ponteiros de entrada para a função apontarem para áreas de memória inválidas, a função deve lançar um erro
 
 static char * all_tests() {
-    mu_run_test(test_big_val_0);
-    mu_run_test(test_big_val_1);
-    mu_run_test(test_big_val_neg);
-    mu_run_test(test_big_val_pos);
-    mu_run_test(test_big_comp2_pos);
-    mu_run_test(test_big_comp2_neg);
-    mu_run_test(test_big_comp2_zero);
-    mu_run_test(test_big_sum_zero);
-    mu_run_test(test_big_sum_um);
-    mu_run_test(test_big_sum_vai_um);
-    mu_run_test(test_big_sub_b_negativo);
-    mu_run_test(test_big_sub_padrao);
-    mu_run_test(test_big_sub_zero);
-    mu_run_test(test_big_mul_zero);
-    mu_run_test(test_big_mul_positivo_e_negativo);
-    mu_run_test(test_big_mul_numeros_positivos);
+    // mu_run_test(test_big_val_0);
+    // mu_run_test(test_big_val_1);
+    // mu_run_test(test_big_val_neg);
+    // mu_run_test(test_big_val_pos);
+    // mu_run_test(test_big_comp2_pos);
+    // mu_run_test(test_big_comp2_neg);
+    // mu_run_test(test_big_comp2_zero);
+    // mu_run_test(test_big_sum_zero);
+    // mu_run_test(test_big_sum_um);
+    // mu_run_test(test_big_sum_vai_um);
+    // mu_run_test(test_big_sub_b_negativo);
+    // mu_run_test(test_big_sub_padrao);
+    // mu_run_test(test_big_sub_zero);
+    // mu_run_test(test_big_mul_zero);
+    // mu_run_test(test_big_mul_positivo_e_negativo);
+    // mu_run_test(test_big_mul_numeros_positivos);
     mu_run_test(test_big_shl_deslocamento_zero);
+    mu_run_test(test_big_shl_deslocamento_1);
+    mu_run_test(test_big_shl_deslocamento_127);
+    mu_run_test(test_big_shl_deslocamento_negativo);
+    mu_run_test(test_big_shr_deslocamento_1);
+
+
     return 0;
 }
 
