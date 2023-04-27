@@ -268,16 +268,20 @@ static char * test_big_shl_deslocamento_127(){
 
     return 0;
 }
-static char * test_big_shl_deslocamento_negativo(){
+static char * test_big_shl_deslocamento_num_negativo(){
     BigInt a16,res20,esperado20;
     
-    long val = 16909060 << -1;
+    long val = -16909060 << 7;
     printf("%x\n",val);
 
-    big_val(a16,16909060);
+    big_val(a16,-16909060);
     big_val(esperado20,val);
 
-    big_shl(res20,a16,-1);
+    big_shl(res20,a16,7);
+    puts("esperado");
+    big_print(esperado20);
+    puts("res");
+    big_print(res20);
     mu_assert("Erro: deslocamento -1, big_shl() com resultado incorreto", big_equal(res20,esperado20));
 
     return 0;
@@ -332,8 +336,8 @@ static char * all_tests() {
     mu_run_test(test_big_shl_deslocamento_zero);
     mu_run_test(test_big_shl_deslocamento_1);
     mu_run_test(test_big_shl_deslocamento_127);
-    mu_run_test(test_big_shl_deslocamento_negativo);
-    mu_run_test(test_big_shr_deslocamento_1);
+    mu_run_test(test_big_shl_deslocamento_num_negativo);
+    mu_run_test(test_big_shr_deslocamento_1);   
 
 
     return 0;

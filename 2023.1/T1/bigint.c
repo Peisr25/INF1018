@@ -196,7 +196,7 @@ void big_mul(BigInt res, BigInt a, BigInt b)
 
 /* res = a << n */
 // void big_shl(BigInt res, BigInt a, int n)
-// {   original github
+// {
 //     int i;
 //     unsigned char *pont_a = (unsigned char *)a;
 //     unsigned char *pont_res = (unsigned char *)res;
@@ -205,26 +205,47 @@ void big_mul(BigInt res, BigInt a, BigInt b)
 //     int bytes_shift = n / 8; // quantidade de bytes que serão deslocados
 //     int bits_shift = n % 8;  // quantidade de bits que serão deslocados dentro do byte
 
+//     // Check if a is negative
+//     int a_neg = a[NUM_BITS / 8 - 1] & 0x80;
+
+//     // If a is negative, apply two's complement to it
+//     if (a_neg) {
+//         big_comp2(a, a);
+//     }
+    
 //     // copia a para res para não modificar o valor original
 //     memcpy(res, a, NUM_BITS / 8);
 
 //     // realiza o deslocamento de n bits para a esquerda
-//     for (i = NUM_BITS / 8 - 1; i >= bytes_shift; i--)
-//     {
-//         soma = (*pont_a << bits_shift) + vai_um;
-//         vai_um = (*pont_a & (0xFF >> (8 - bits_shift))) >> (8 - bits_shift);
-//         *pont_res = soma;
-//         pont_a++;
-//         pont_res++;
+//     if (bytes_shift > 0) {
+//         // Shift the bytes by `bytes_shift`
+//         for (i = NUM_BITS / 8 - 1; i >= bytes_shift; i--)
+//         {
+//             pont_res[i] = pont_a[i - bytes_shift];
+//         }
+
+//         // Fill the remaining bytes with zeros
+//         for (i = 0; i < bytes_shift; i++)
+//         {
+//             pont_res[i] = 0;
+//         }
 //     }
 
-//     // preenche com zeros os bytes que foram deslocados
-//     for (i = 0; i < bytes_shift; i++)
-//     {
-//         *pont_res = 0;
-//         pont_res++;
+//     // Shift the bits within the remaining bytes by `bits_shift`
+//     if (bits_shift > 0) {
+//         for (i = NUM_BITS / 8 - 1; i >= bytes_shift; i--)
+//         {
+//             soma = (pont_a[i] << bits_shift) + vai_um;
+//             vai_um = (pont_a[i] & (0xFF >> (8 - bits_shift))) >> (8 - bits_shift);
+//             pont_res[i] = soma;
+//         }
+//     }
+//     // If a was negative, apply two's complement to the result
+//     if (a_neg) {
+//         big_comp2(res, res);
 //     }
 // }
+
 void big_shl(BigInt res, BigInt a, int n)
 {
     int i;
@@ -235,106 +256,48 @@ void big_shl(BigInt res, BigInt a, int n)
     int bytes_shift = n / 8; // quantidade de bytes que serão deslocados
     int bits_shift = n % 8;  // quantidade de bits que serão deslocados dentro do byte
 
+    // Check if a is negative
+    int a_neg = a[NUM_BITS / 8 - 1] & 0x80;
+
+    // // If a is negative, apply two's complement to it
+    // if (a_neg) {
+    //     big_comp2(a, a);
+    // }
+
     // copia a para res para não modificar o valor original
     memcpy(res, a, NUM_BITS / 8);
 
     // realiza o deslocamento de n bits para a esquerda
-    for (i = NUM_BITS / 8 - 1; i >= bytes_shift; i--)
-    {
-        soma = (*pont_a << bits_shift) + vai_um;
-        vai_um = (*pont_a & (0xFF >> (8 - bits_shift))) >> (8 - bits_shift);
-        *pont_res = soma;
-        pont_a++;
-        pont_res++;
+    if (bits_shift > 0) {
+        // Shift the bytes by `bytes_shift` + 1
+        for (i = NUM_BITS / 8 - 1; i >= bytes_shift + 1; i--)
+        {
+            soma = (pont_a[i - bytes_shift] << bits_shift) | (pont_a[i - bytes_shift - 1] >> (8 - bits_shift));
+            pont_res[i] = soma;
+        }
+
+        // Handle the shifting within the byte at position `bytes_shift`
+        soma = (pont_a[bytes_shift] << bits_shift);
+        pont_res[bytes_shift] = soma;
     }
 
-    // preenche com zeros os bytes que foram deslocados
-    for (i = NUM_BITS / 8 - 1; i >= (NUM_BITS / 8 - bytes_shift); i--)
+    // Fill the remaining bytes with zeros
+    for (i = 0; i < bytes_shift; i++)
     {
-        *pont_res = 0;
-        pont_res--;
+        pont_res[i] = 0;
+    }
+    puts("res antes comp2");
+    big_print(res);
+    // If a was negative, apply two's complement to the result
+    if (a_neg) {
+        for( i= 0 ;i <NUM_BITS / 8; i++){
+            if(res[i] == 0xff){
+                res[i] = 0;
+            }
+        }
+        //big_comp2(res, res);
     }
 }
-
-
-// void big_shl(BigInt res, BigInt a, int n)
-// {
-//     int i;
-//     unsigned char *pont_a = (unsigned char *)a;
-//     unsigned char *pont_res = (unsigned char *)res;
-//     unsigned char vai_um = 0;
-//     unsigned short soma;
-//     int bytes_shift = n / 8; // quantidade de bytes que serão deslocados
-//     int bits_shift = n % 8;  // quantidade de bits que serão deslocados dentro do byte
-
-//     // copia a para res para não modificar o valor original
-//     memcpy(res, a, NUM_BITS / 8);
-
-//     if (a[NUM_BITS / 8 - 1] & 0x80) { // se a é negativo
-//         big_comp2(res, a); //inverte a caso seja negativo
-//     }
-//     // realiza o deslocamento de n bits para a esquerda
-//     for (i = NUM_BITS / 8 - 1; i >= bytes_shift; i--)
-//     {
-//         soma = (*pont_a << bits_shift) + vai_um;
-//         vai_um = (*pont_a & (0xFF >> (8 - bits_shift))) >> (8 - bits_shift);
-//         *pont_res = soma;
-//         pont_a++;
-//         pont_res++;
-//         puts("res");
-//     big_print(res);
-//     }
-//     puts("res");
-//     big_print(res);
-//     // preenche com zeros os bytes que foram deslocados
-//     for (i = 0; i < bytes_shift; i++)
-//     {
-//         *pont_res = 0;
-//         pont_res++;
-//     }
-//     if(res[NUM_BITS / 8 -1 ] & 0x80){
-//         big_comp2(res,res);
-//     }
-//}
-// void big_shl(BigInt res, BigInt a, int n) {
-//     int i;
-//     unsigned char *pont_a = (unsigned char *)a;
-//     unsigned char *pont_res = (unsigned char *)res;
-//     unsigned char vai_um = 0;
-//     unsigned short soma;
-//     int bytes_shift = n / 8; // quantidade de bytes que serão deslocados
-//     int bits_shift = n % 8;  // quantidade de bits que serão deslocados dentro do byte
-
-//     // Checa se o valor de a é negativo e aplica o complemento a 2 se necessário
-//     int is_negative = (pont_a[NUM_BITS / 8 - 1] & 0x80) != 0;
-//     if (is_negative) {
-//         big_comp2(res, a);
-//         pont_a = (unsigned char *)res;
-//     } else {
-//         // Copia a para res para não modificar o valor original
-//         memcpy(res, a, NUM_BITS / 8);
-//     }
-
-//     // Realiza o deslocamento de n bits para a esquerda
-//     for (i = NUM_BITS / 8 - 1; i >= bytes_shift; i--) {
-//         soma = (*pont_a << bits_shift) + vai_um;
-//         vai_um = (*pont_a & (0xFF >> (8 - bits_shift))) >> (8 - bits_shift);
-//         *pont_res = soma;
-//         pont_a++;
-//         pont_res++;
-//     }
-
-//     // Preenche com zeros os bytes que foram deslocados
-//     for (i = 0; i < bytes_shift; i++) {
-//         *pont_res = 0;
-//         pont_res++;
-//     }
-
-//     // Se o valor de a era negativo, aplica o complemento a 2 ao resultado
-//     if (is_negative) {
-//         big_comp2(res, res);
-//     }
-// }
 
 /* res = a >> n (lógico)*/
 // void big_shr(BigInt res, BigInt a, int n)
