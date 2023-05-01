@@ -324,7 +324,45 @@ void big_shl(BigInt res, BigInt a, int n)
 //     }
 // }
 
-void big_shr(BigInt res, BigInt a, int n) {
+// void big_shr(BigInt res, BigInt a, int n)
+// {
+//     int i;
+//     unsigned char *pont_a = (unsigned char *)a;
+//     unsigned char *pont_res = (unsigned char *)res;
+//     unsigned char vai_um = 0;
+//     unsigned short soma;
+//     int bytes_shift = n / 8; // quantidade de bytes que serão deslocados
+//     int bits_shift = n % 8;  // quantidade de bits que serão deslocados dentro do byte
+
+//     // copia a para res para não modificar o valor original
+//     memcpy(res, a, NUM_BITS / 8);
+
+//     // preenche com zeros no final do número
+//     for (i = NUM_BITS / 8 - 1; i >= NUM_BITS / 8 - bytes_shift; i--)
+//     {
+//         pont_res[i] = 0;
+//     }
+
+//     // realiza o deslocamento de n bits para a direita
+//     if (bits_shift > 0) {
+//         // Shift the bytes by `bytes_shift` - 1
+//         for (i = NUM_BITS / 8 - bytes_shift - 1; i >= 0; i--)
+//         {
+//             puts("res antes soma");
+//             big_print(res);
+//             soma = (pont_a[i + bytes_shift] >> bits_shift) | (pont_a[i + bytes_shift + 1] << (8 - bits_shift));
+//             pont_res[i] = soma;
+//         }
+
+//         // Handle the shifting within the byte at position `bytes_shift`
+//         soma = (pont_a[NUM_BITS / 8 - bytes_shift - 1] >> bits_shift);
+//         pont_res[NUM_BITS / 8 - bytes_shift - 1] = soma;
+//         puts("res ");
+//         big_print(res);
+//     }
+// }
+void big_shr(BigInt res, BigInt a, int n)
+{
     int i;
     unsigned char *pont_a = (unsigned char *)a;
     unsigned char *pont_res = (unsigned char *)res;
@@ -336,19 +374,39 @@ void big_shr(BigInt res, BigInt a, int n) {
     // copia a para res para não modificar o valor original
     memcpy(res, a, NUM_BITS / 8);
 
-    // realiza o deslocamento de n bits para a direita
-    for (i = 0; i < NUM_BITS / 8 - bytes_shift; i++) {
-        soma = (*pont_a >> bits_shift) + vai_um;
-        vai_um = (*pont_a & ((1 << bits_shift) - 1)) << (8 - bits_shift);
-        *pont_res = soma;
-        pont_a++;
-        pont_res++;
+    // preenche com zeros ou uns no final do número
+    if (pont_a[NUM_BITS / 8 - 1] & 0x80) {
+        // se o bit de sinal for 1, preenche com 0xFF
+        for (i = NUM_BITS / 8 - 1; i >= NUM_BITS / 8 - bytes_shift; i--)
+        {
+            pont_res[i] = 0xFF;
+        }
+    } else {
+        // se o bit de sinal for 0, preenche com 0x00
+        for (i = NUM_BITS / 8 - 1; i >= NUM_BITS / 8 - bytes_shift; i--)
+        {
+            pont_res[i] = 0x00;
+        }
     }
 
-    // preenche com zeros os bytes que foram deslocados
-    for (i = 0; i < bytes_shift; i++) {
-        *pont_res = 0;
-        pont_res++;
+    // realiza o deslocamento de n bits para a direita
+    if (bits_shift > 0) {
+        // Shift the bytes by `bytes_shift` - 1
+        for (i = NUM_BITS / 8 - bytes_shift - 1; i >= 0; i--)
+        {
+            soma = (pont_a[i + bytes_shift] >> bits_shift) | (pont_a[i + bytes_shift + 1] << (8 - bits_shift));
+            pont_res[i] = soma;
+        }
+
+        // Handle the shifting within the byte at position `bytes_shift`
+        soma = (pont_a[NUM_BITS / 8 - bytes_shift - 1] >> bits_shift);
+        pont_res[NUM_BITS / 8 - bytes_shift - 1] = soma;
+
+        // Verifica se o bit de sinal precisa ser propagado
+        if (pont_a[NUM_BITS / 8 - bytes_shift - 1] & 0x80) {
+            // Se o bit de sinal for 1, preenche com 0xFF
+            pont_res[NUM_BITS / 8 - bytes_shift - 1] |= (0xFF << (8 - bits_shift));
+        }
     }
 }
 

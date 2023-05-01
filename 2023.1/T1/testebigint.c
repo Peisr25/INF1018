@@ -227,7 +227,8 @@ static char * test_big_mul_zero(){
 static char * test_big_shl_deslocamento_zero(){
     BigInt a13,b13,res17,esperado17;
 
-    big_val(esperado17,16909060);
+    long val = 16909060 << 0;
+    big_val(esperado17,val);
     big_val(a13,16909060);
 
     big_shl(res17,a13,0);
@@ -287,11 +288,12 @@ static char * test_big_shl_deslocamento_num_negativo(){
     return 0;
 }
 
+
 static char * test_big_shr_deslocamento_1(){
     BigInt a17,res21,esperado21;
     
     long val = 16909060 >> 1;
-    printf("%x\n",val);
+    printf("val %x\n",val);
 
     big_val(a17,16909060);
     big_val(esperado21,val);
@@ -302,6 +304,55 @@ static char * test_big_shr_deslocamento_1(){
     big_print(res21);
     mu_assert("Erro: deslocamento 1, big_shr com resultado incorreto", big_equal(res21,esperado21));
 
+    return 0;
+}
+static char * test_big_shr_deslocamento_127(){
+    BigInt a18,res22,esperado22;
+    
+    long val = 16909060 >> 127;
+    printf("val %x\n",val);
+
+    big_val(a18,16909060);
+    big_val(esperado22,val);
+    
+    big_shr(res22,a18,127);
+    big_print(a18);
+    big_print(esperado22);
+    big_print(res22);
+    mu_assert("Erro: deslocamento 1, big_shr com resultado incorreto", big_equal(res22,esperado22));
+
+    return 0;
+}
+
+static char * test_big_shr_deslocamento_num_negativo(){
+    BigInt a19,res23,esperado23;
+    
+    long val = -16909060 >> 7;
+    printf("%x\n",val);
+
+    big_val(a19,-16909060);
+    big_val(esperado23,val);
+
+    big_shr(res23,a19,7);
+    puts("esperado");
+    big_print(esperado23);
+    puts("res");
+    big_print(res23);
+    mu_assert("Erro: deslocamento com numero negativo (-16909060) e n = 7, big_shr() com resultado incorreto", big_equal(res23,esperado23));
+
+    return 0;
+}
+static char * test_big_shr_deslocamento_zero(){
+    BigInt a20,res23,esperado23;
+
+    long val = 16909060 >> 0;
+    big_val(esperado23,val);
+    big_val(a20,16909060);
+
+    big_shl(res23,a20,0);
+    big_print(res23);
+
+    mu_assert("Erro: deslocamento zero, big_shl() com resultado incorreto", big_equal(res23,esperado23));
     return 0;
 }
 // Alguns casos de teste para a função big_shl podem incluir:
@@ -337,7 +388,10 @@ static char * all_tests() {
     mu_run_test(test_big_shl_deslocamento_1);
     mu_run_test(test_big_shl_deslocamento_127);
     mu_run_test(test_big_shl_deslocamento_num_negativo);
+    mu_run_test(test_big_shr_deslocamento_zero);
     mu_run_test(test_big_shr_deslocamento_1);   
+    mu_run_test(test_big_shr_deslocamento_127);
+    mu_run_test(test_big_shr_deslocamento_num_negativo);
 
 
     return 0;
