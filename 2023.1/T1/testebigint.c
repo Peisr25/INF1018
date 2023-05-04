@@ -15,6 +15,7 @@ int big_equal(BigInt a, BigInt b) {
     }
     return 1;
 }
+
 // Função auxiliar para imprimir um BigInt em hexadecimal
 // Função auxiliar para imprimir um BigInt em hexadecimal com sinal
 void big_print(BigInt a) {
@@ -355,35 +356,36 @@ static char * test_big_shr_deslocamento_zero(){
     mu_assert("Erro: deslocamento zero, big_shl() com resultado incorreto", big_equal(res23,esperado23));
     return 0;
 }
-// Alguns casos de teste para a função big_shl podem incluir:
+static char * test_big_sar_deslocamento_oito(){
+    BigInt a = {0x12,0x34,0x56,0x78,0x90,0xAB,0xCD,0xEF};
+    BigInt res24;
+    BigInt esperado24 = {0xff,0x12,0x34,0x56,0x78,0x90,0xAB,0xCD,0xEF};
+    puts("esperado");
+    big_print(esperado24);
+    big_sar(res24, a, 8);
+    puts("res");
+    big_print(res24);
+    mu_assert("Erro: deslocamento 8, big_sar() com resultado incorreto", big_equal(res24,esperado24));
+    return 0;
 
-// Deslocamento de 0 bits: neste caso, a função deve retornar o mesmo valor de entrada.
-
-// Deslocamento de 1 bit: neste caso, a função deve deslocar todos os bits de a uma posição para a esquerda, inserindo um 0 no bit menos significativo.
-
-// Deslocamento de 127 bits: neste caso, a função deve mover todos os bits de a para a posição mais significativa em res.
-
-// Valores negativos de n: neste caso, a função pode retornar um valor indeterminado ou lançar um erro.
-
-// Valores de entrada inválidos: por exemplo, se os ponteiros de entrada para a função apontarem para áreas de memória inválidas, a função deve lançar um erro
-
+}
 static char * all_tests() {
-    // mu_run_test(test_big_val_0);
-    // mu_run_test(test_big_val_1);
-    // mu_run_test(test_big_val_neg);
-    // mu_run_test(test_big_val_pos);
-    // mu_run_test(test_big_comp2_pos);
-    // mu_run_test(test_big_comp2_neg);
-    // mu_run_test(test_big_comp2_zero);
-    // mu_run_test(test_big_sum_zero);
-    // mu_run_test(test_big_sum_um);
-    // mu_run_test(test_big_sum_vai_um);
-    // mu_run_test(test_big_sub_b_negativo);
-    // mu_run_test(test_big_sub_padrao);
-    // mu_run_test(test_big_sub_zero);
-    // mu_run_test(test_big_mul_zero);
-    // mu_run_test(test_big_mul_positivo_e_negativo);
-    // mu_run_test(test_big_mul_numeros_positivos);
+    mu_run_test(test_big_val_0);
+    mu_run_test(test_big_val_1);
+    mu_run_test(test_big_val_neg);
+    mu_run_test(test_big_val_pos);
+    mu_run_test(test_big_comp2_pos);
+    mu_run_test(test_big_comp2_neg);
+    mu_run_test(test_big_comp2_zero);
+    mu_run_test(test_big_sum_zero);
+    mu_run_test(test_big_sum_um);
+    mu_run_test(test_big_sum_vai_um);
+    mu_run_test(test_big_sub_b_negativo);
+    mu_run_test(test_big_sub_padrao);
+    mu_run_test(test_big_sub_zero);
+    mu_run_test(test_big_mul_zero);
+    mu_run_test(test_big_mul_positivo_e_negativo);
+    mu_run_test(test_big_mul_numeros_positivos);
     mu_run_test(test_big_shl_deslocamento_zero);
     mu_run_test(test_big_shl_deslocamento_1);
     mu_run_test(test_big_shl_deslocamento_127);
@@ -392,6 +394,7 @@ static char * all_tests() {
     mu_run_test(test_big_shr_deslocamento_1);   
     mu_run_test(test_big_shr_deslocamento_127);
     mu_run_test(test_big_shr_deslocamento_num_negativo);
+    mu_run_test(test_big_sar_deslocamento_oito);
 
 
     return 0;
