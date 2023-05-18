@@ -34,26 +34,16 @@ main:
   movq    %rbx, -8(%rbp)
   movq    %r12, -16(%rbp)
 /********************************************************/
-#int sum=0;
   movl  $0, %ecx  /* ebx = 0; */
-
-#for(i=0,p=nums; i!=4;i++,p++)
-#i=0;
   movl $0,%ebx
-#p = nums;
   movq  $nums, %r12  /* r12 = &nums */
 
-  #while(i!=4)
 Loop:
   cmpl  $4, %ebx  /* if (ebx == 4) ? */
   je FimLoop          /* goto L2 */
 
-  #incluir bloco while aqui
-  #sum+=*p;
   addl (%r12),%ecx
-    #i++;
   addl $1,%ebx
-    #p++;
   addq $4,r12 /* r12+=4 */
   jmp Loop
 
@@ -64,7 +54,7 @@ Loop:
   call  printf       /* chama a funcao da biblioteca */
 /*************************************************************/
 FimLoop:  
-  #printf("%d\n",sum);
+  //#printf("%d\n",sum);
   movl  (%r12), %eax    /* eax = *r12 */
 /***************************************************************/
 /* mantenha este trecho aqui e nao mexa - finalizacao!!!!      */

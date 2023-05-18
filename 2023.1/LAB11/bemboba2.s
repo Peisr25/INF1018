@@ -20,7 +20,7 @@ bemboba:
     subq $16, %rsp
 
     movl $0, %r12d /* i = 0 */
-    movq -16(%rbp), %r11
+    movq -16(%rbp), %r11 /* a = num */
 
 For:
     cmpl $4, %r12d
