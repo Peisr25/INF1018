@@ -1,0 +1,1 @@
+imull $1, %ebx
