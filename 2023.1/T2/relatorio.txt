@@ -1,0 +1,111 @@
+objdump dos testes para verificar se a função gera produz o mesmo código de máquina
+
+teste 1:
+0000000000000000 <main>:
+   0: 55                   push   %rbp
+   1: 48 89 e5             mov    %rsp,%rbp
+   4: 48 83 ec 20          sub    $0x20,%rsp
+   8: c7 45 fc 0a 00 00 00 movl   $0xa,-0x4(%rbp)
+   f: 8b 45 fc             mov    -0x4(%rbp),%eax
+  12: c9                   leave
+  13: c3                   ret
+
+Teste 2:
+0000000000000000 <main>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   b8 05 00 00 00          mov    $0x5,%eax
+   d:   c9                      leave  
+   e:   c3                      ret   
+
+Teste 3:
+0000000000000000 <main>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   c7 45 fc 0a 00 00 00    movl   $0xa,-0x4(%rbp)
+   f:   c7 45 f8 0a 00 00 00    movl   $0xa,-0x8(%rbp)
+  16:   8b 45 fc                mov    -0x4(%rbp),%eax
+  19:   03 45 f8                add    -0x8(%rbp),%eax
+  1c:   89 45 f4                mov    %eax,-0xc(%rbp)
+  1f:   c9                      leave  
+  20:   c3                      ret    
+
+Teste 4: 
+0000000000000000 <main>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   c7 45 f8 64 00 00 00    movl   $0x64,-0x8(%rbp)
+   f:   8b 45 f8                mov    -0x8(%rbp),%eax
+  12:   c9                      leave  
+  13:   c3                      ret  
+
+Teste 5:
+0000000000000000 <main>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   89 7d fc                mov    %edi,-0x4(%rbp)
+   b:   89 75 f8                mov    %esi,-0x8(%rbp)
+   e:   8b 45 fc                mov    -0x4(%rbp),%eax
+  11:   03 45 f8                add    -0x8(%rbp),%eax
+  14:   89 45 f4                mov    %eax,-0xc(%rbp)
+  17:   8b 45 fc                mov    -0x4(%rbp),%eax
+  1a:   2b 45 f8                sub    -0x8(%rbp),%eax
+  1d:   89 45 f0                mov    %eax,-0x10(%rbp)
+  20:   8b 45 f4                mov    -0xc(%rbp),%eax
+  23:   0f af 45 f2             imul   -0xe(%rbp),%eax
+  27:   89 45 fc                mov    %eax,-0x4(%rbp)
+  2a:   8b 45 fc                mov    -0x4(%rbp),%eax
+  2d:   c9                      leave  
+  2e:   c3                      ret 
+
+Teste 6:
+
+0000000000000000 <main>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   89 7d fc                mov    %edi,-0x4(%rbp)
+   b:   c7 45 f8 01 00 00 00    movl   $0x1,-0x8(%rbp)
+  12:   c7 45 f4 00 00 00 00    movl   $0x0,-0xc(%rbp)
+  19:   83 7d fc 00             cmpl   $0x0,-0x4(%rbp)
+  1d:   7e 1e ff ff ff 00       jle    3d <fim>
+  1f:   8b 45 f8                mov    -0x8(%rbp),%eax
+  22:   0f af 45 fc             imul   -0x4(%rbp),%eax
+  26:   89 45 f8                mov    %eax,-0x8(%rbp)
+  29:   8b 45 fc                mov    -0x4(%rbp),%eax
+  2c:   83 e8 01                sub    $0x1,%eax
+  2f:   89 45 fc                mov    %eax,-0x4(%rbp)
+  32:   83 7d f4 00             cmpl   $0x0,-0xc(%rbp)
+  36:   7e e1 ff ff ff 00       jle    3d <fim>
+  38:   8b 45 f8                mov    -0x8(%rbp),%eax
+  3b:   c9                      leave  
+  3c:   c3                      ret    
+
+000000000000003d <fim>:
+  3d:   8b 45 f8                mov    -0x8(%rbp),%eax
+  40:   c9                      leave  
+  41:   c3                      ret    
+
+ Teste 7:
+  0000000000000000 <main>:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   48 83 ec 20             sub    $0x20,%rsp
+   8:   89 7d fc                mov    %edi,-0x4(%rbp)
+   b:   8b 45 fc                mov    -0x4(%rbp),%eax
+   e:   83 c0 01                add    $0x1,%eax
+  11:   89 45 fc                mov    %eax,-0x4(%rbp)
+  14:   83 7d fc 00             cmpl   $0x0,-0x4(%rbp)
+  18:   7e 07                   jle    21 <fim>
+  1a:   b8 00 00 00 00          mov    $0x0,%eax
+  1f:   c9                      leave  
+  20:   c3                      ret    
+
+0000000000000021 <fim>:
+  21:   b8 01 00 00 00          mov    $0x1,%eax
+  26:   c9                      leave  
+  27:   c3                      ret     
